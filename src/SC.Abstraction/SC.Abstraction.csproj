@@ -1,0 +1,7 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	
+	<ItemGroup>
+		<PackageReference Include="Sugar.Object.Extensions" Version="1.0.5" />
+	</ItemGroup>
+	
+</Project>

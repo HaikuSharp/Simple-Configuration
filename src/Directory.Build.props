@@ -1,0 +1,34 @@
+<Project>
+	
+	<PropertyGroup>
+		<TargetFrameworks>net481;netstandard2.1;net8.0;net9.0;net10.0</TargetFrameworks>
+		<LangVersion>preview</LangVersion>
+		<BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
+	</PropertyGroup>
+	
+	<PropertyGroup>
+		<BuildVersion>1.0.0</BuildVersion>
+		<Version>$(BuildVersion)</Version>
+		<AssemblyVersion>$(BuildVersion)</AssemblyVersion>
+		<FileVersion>$(BuildVersion)</FileVersion>
+	</PropertyGroup>
+	
+	<PropertyGroup>
+		<PackageId>$(MSBuildProjectName)</PackageId>
+		<Title>$(MSBuildProjectName)</Title>
+		<Description>A lightweight .NET configuration library with hierarchical sections, multi-source support, and runtime updates.</Description>
+		<Authors>R2R2HS</Authors>
+		<Company>HaikuSharp</Company>
+		<Copyright>© 2025 $(Company)</Copyright>
+		<RepositoryType>git</RepositoryType>
+		<PackageProjectUrl>https://github.com/HaikuSharp/Simple-Configuration</PackageProjectUrl>
+		<RepositoryUrl>$(PackageProjectUrl).git</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<WarningLevel>9999</WarningLevel>
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+	</PropertyGroup>
+	
+</Project>
