@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SC", "SC\SC.csproj", "{3CC2
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SC.Newtonsoft.JSON", "SC.Newtonsoft.JSON\SC.Newtonsoft.JSON.csproj", "{42D985F1-BDD7-4812-89D4-ED43B13B7C4D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SC.Extensions", "SC.Extensions\SC.Extensions.csproj", "{80BB4F77-563A-4BE1-984B-97CE5C5C2A05}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{42D985F1-BDD7-4812-89D4-ED43B13B7C4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42D985F1-BDD7-4812-89D4-ED43B13B7C4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42D985F1-BDD7-4812-89D4-ED43B13B7C4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80BB4F77-563A-4BE1-984B-97CE5C5C2A05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80BB4F77-563A-4BE1-984B-97CE5C5C2A05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80BB4F77-563A-4BE1-984B-97CE5C5C2A05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80BB4F77-563A-4BE1-984B-97CE5C5C2A05}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
