@@ -28,6 +28,8 @@ public readonly struct ConfigurationPath(string path) : IEquatable<Configuration
 
     public ConfigurationPathEnumerator GetEnumerator() => new(m_RootPath);
 
+    public static ConfigurationPath Combine(ConfigurationPath left, ConfigurationPath rigth) => new(left.m_RootPath + PATH_SEPARATOR + rigth.m_RootPath);
+
     IEnumerator<string> IEnumerable<string>.GetEnumerator() => GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
