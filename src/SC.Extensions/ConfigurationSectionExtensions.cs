@@ -9,6 +9,12 @@ public static class ConfigurationSectionExtensions
 
     public static void SetValue<T>(this IConfigurationSection section, string path, T value) => section.SetValue(new ConfigurationPath(path), value);
 
+    public static T GetValueOrDefault<T>(this IConfigurationSection section, string path) => section.GetValueOrDefault<T>(new ConfigurationPath(path));
+
+    public static T GetValueOrDefault<T>(this IConfigurationSection section, ConfigurationPath path) => section.GetValueOrDefault<T>(path.GetEnumerator());
+
+    public static T GetValueOrDefault<T>(this IConfigurationSection section, ConfigurationPathEnumerator enumerator) => section.TryGetValue(enumerator, out T value) ? value : default;
+
     public static T GetValueOrDefault<T>(this IConfigurationSection section, string path, T defaultValue) => section.GetValueOrDefault(new ConfigurationPath(path), defaultValue);
 
     public static T GetValueOrDefault<T>(this IConfigurationSection section, ConfigurationPath path, T defaultValue) => section.GetValueOrDefault(path.GetEnumerator(), defaultValue);
