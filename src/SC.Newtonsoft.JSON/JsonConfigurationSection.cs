@@ -34,6 +34,8 @@ public class JsonConfigurationSection(string name, JToken rootToken) : Configura
 
     public override IConfigurationSection Clone() => new JsonConfigurationSection(Name, Token.DeepClone());
 
+    public override string ToString() => Token.ToString();
+
     private static JToken GetToken(ConfigurationPathEnumerator enumerator, JToken token)
     {
         while(enumerator.MoveNext()) token = token[enumerator.Current];
