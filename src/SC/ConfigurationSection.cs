@@ -38,7 +38,7 @@ public class ConfigurationSection(string name, IDictionary<string, object> value
             return true;
         }
 
-        if(!values.TryGetValue(enumerator.Current, out var obj)) goto RET;
+        if(!values.TryGetValue(enumerator.Current, out object obj)) goto RET;
         if(obj is IConfigurationSection section) return section.TryGetValue(enumerator, out value);
 
         if(obj is T tobj)
@@ -47,7 +47,7 @@ public class ConfigurationSection(string name, IDictionary<string, object> value
             return true;
         }
 
-        RET:
+    RET:
         value = default;
         return false;
     }
@@ -55,10 +55,9 @@ public class ConfigurationSection(string name, IDictionary<string, object> value
     public override bool TrySetValue<T>(ConfigurationPathEnumerator enumerator, T value)
     {
         if(!enumerator.MoveNext()) return false;
-        var current = enumerator.Current;
-        if(!values.TryGetValue(current, out var obj)) return false;
-        if(obj is IConfigurationSection section) return section.TrySetValue(enumerator, value);
-        values[current] = value;
+        string current = enumerator.Current;
+        if(!values.TryGetValue(current, out object obj)) return false;
+        if(obj is not IConfigurationSection section || !section.TrySetValue(enumerator, value)) values[current] = value;
         return true;
     }
 }

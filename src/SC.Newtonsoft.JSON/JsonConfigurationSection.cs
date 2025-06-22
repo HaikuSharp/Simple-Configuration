@@ -32,7 +32,7 @@ public class JsonConfigurationSection(string name, JToken rootToken) : Configura
         return true;
     }
 
-    public override IConfigurationSection Clone() => new JsonConfigurationSection(Name, Token);
+    public override IConfigurationSection Clone() => new JsonConfigurationSection(Name, Token.DeepClone());
 
     private static JToken GetToken(ConfigurationPathEnumerator enumerator, JToken token)
     {
