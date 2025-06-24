@@ -1,6 +1,12 @@
 ﻿using SC.Abstraction;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+#if NETFRAMEWORK
+using System.Linq;
+using System.Linq.Expressions;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
+#endif
 
 namespace SC.Extensions;
 

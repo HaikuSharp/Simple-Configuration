@@ -17,6 +17,12 @@ public readonly struct ConfigurationPathValuePair(ConfigurationPath path, Config
 
     public override string ToString() => $"({Path}: {value})";
 
+    public void Destruct(out ConfigurationPath path, out ConfigurationValue value)
+    {
+        path = Path;
+        value = Value;
+    }
+
     public static ConfigurationPathValuePair FromKvp(KeyValuePair<ConfigurationPath, ConfigurationValue> kvp) => new(kvp.Key, kvp.Value);
 
     public static bool operator ==(ConfigurationPathValuePair left, ConfigurationPathValuePair right) => left.Equals(right);
