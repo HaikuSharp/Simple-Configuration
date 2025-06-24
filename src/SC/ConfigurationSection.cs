@@ -1,63 +1,25 @@
 ﻿using SC.Abstraction;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace SC;
 
-public class ConfigurationSection(string name, IDictionary<string, object> values) : ConfigurationSectionBase(name)
+public class ConfigurationSection(string prefix, IConfiguration configuration) : ConfigurationBase(configuration.Name + configuration.Options.Separator + prefix, configuration.Options), IConfigurationSection
 {
-    private ReadOnlyDictionary<string, object> m_ReadOnlyValues;
+    public string Prefix => prefix;
 
-    public ConfigurationSection(string name) : this(name, new Dictionary<string, object>()) { }
+    public override bool HasSection(string prefix) => configuration.HasSection(GetPath(prefix));
 
-    public override IConfigurationSection Clone() => new ConfigurationSection(Name, values);
+    public override bool HasValue(string fullPath) => configuration.HasValue(GetPath(fullPath));
 
-    public override T GetValue<T>(ConfigurationPathEnumerator enumerator)
-    {
-        if(!enumerator.MoveNext()) return (T)(object)this;
-        object currentValue = values[enumerator.Current];
-        return currentValue is IConfigurationSection section ? section.GetValue<T>(enumerator) : throw new InvalidOperationException();
-    }
+    public override string GetValue(string fullPath) => configuration.GetValue(GetPath(fullPath));
 
-    public override void SetValue<T>(ConfigurationPathEnumerator enumerator, T value)
-    {
-        if(!enumerator.MoveNext()) return;
-        string current = enumerator.Current;
-        if(values[current] is IConfigurationSection section) section.SetValue(enumerator, value);
-        else values[current] = value;
-    }
+    public override void SetValue(string fullPath, string value) => configuration.SetValue(GetPath(fullPath), value);
 
-    public override T ToObject<T>() => (m_ReadOnlyValues ??= new ReadOnlyDictionary<string, object>(values)) is T tobj ? tobj : throw new InvalidCastException();
+    public string GetPath(string pathPart) => prefix + Options.Separator + pathPart;
 
-    public override bool TryGetValue<T>(ConfigurationPathEnumerator enumerator, out T value)
-    {
-        if(!enumerator.MoveNext())
-        {
-            value = (T)(object)this;
-            return true;
-        }
+    public override IConfiguration Clone() => new ConfigurationSection(prefix, configuration);
 
-        if(!values.TryGetValue(enumerator.Current, out object obj)) goto RET;
-        if(obj is IConfigurationSection section) return section.TryGetValue(enumerator, out value);
+    IConfiguration IConfiguration.Clone() => Clone();
 
-        if(obj is T tobj)
-        {
-            value = tobj;
-            return true;
-        }
-
-    RET:
-        value = default;
-        return false;
-    }
-
-    public override bool TrySetValue<T>(ConfigurationPathEnumerator enumerator, T value)
-    {
-        if(!enumerator.MoveNext()) return false;
-        string current = enumerator.Current;
-        if(!values.TryGetValue(current, out object obj)) return false;
-        if(obj is not IConfigurationSection section || !section.TrySetValue(enumerator, value)) values[current] = value;
-        return true;
-    }
+    object ICloneable.Clone() => Clone();
 }

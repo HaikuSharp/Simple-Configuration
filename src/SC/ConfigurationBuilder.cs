@@ -8,7 +8,7 @@ public class ConfigurationBuilder : IConfigurationBuilder
 {
     private readonly List<IConfigurationSource> m_Sources = [];
 
-    public IConfigurationSection Build() => new ConfigurationSection("root", m_Sources.Select(s => s.CreateSection()).ToDictionary(s => s.Name, s => (object)s));
+    public IConfiguration Build(string name, IConfigurationOptions options) => new MultiConfiguration(name, options, m_Sources.Select(s => s.Create(options)));
 
     public IConfigurationBuilder AppendSource(IConfigurationSource source)
     {

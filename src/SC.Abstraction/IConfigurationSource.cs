@@ -2,5 +2,5 @@
 
 public interface IConfigurationSource
 {
-    IConfigurationSection CreateSection();
+    IConfiguration Create(IConfigurationOptions options);
 }
