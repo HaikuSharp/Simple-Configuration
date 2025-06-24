@@ -4,7 +4,7 @@ using System.ComponentModel;
 
 namespace SC.Extensions;
 
-public static class ConfigurationExtensions
+public static class ConfigurationValueExtensions
 {
     public static bool TryGetSection(this IConfiguration configuration, string prefix, out IConfigurationSection section)
     {
