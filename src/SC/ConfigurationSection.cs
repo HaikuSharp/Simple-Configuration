@@ -1,21 +1,29 @@
 ﻿using SC.Abstraction;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SC;
 
-public class ConfigurationSection(string prefix, IConfiguration configuration) : ConfigurationBase(configuration.Name + configuration.Options.Separator + prefix, configuration.Options), IConfigurationSection
+public class ConfigurationSection(ConfigurationPath prefix, IConfiguration configuration) : ConfigurationBase(configuration.Name + configuration.Options.Separator + prefix, configuration.Options), IConfigurationSection
 {
-    public string Prefix => prefix;
+    public ConfigurationPath Prefix => prefix;
 
-    public override bool HasSection(string prefix) => configuration.HasSection(GetPath(prefix));
+    public override IEnumerable<ConfigurationPathValuePair> Pairs => configuration.Pairs.Where(p => p.Path.IsPrefix(prefix));
 
-    public override bool HasValue(string fullPath) => configuration.HasValue(GetPath(fullPath));
+    public override IEnumerable<ConfigurationPath> Paths => Pairs.Select(p => p.Path);
 
-    public override string GetValue(string fullPath) => configuration.GetValue(GetPath(fullPath));
+    public override IEnumerable<ConfigurationValue> Values => Pairs.Select(p => p.Value);
 
-    public override void SetValue(string fullPath, string value) => configuration.SetValue(GetPath(fullPath), value);
+    public override bool HasSection(ConfigurationPath prefix) => configuration.HasSection(GetPath(prefix));
 
-    public string GetPath(string pathPart) => prefix + Options.Separator + pathPart;
+    public override bool HasValue(ConfigurationPath fullPath) => configuration.HasValue(GetPath(fullPath));
+
+    public override ConfigurationValue GetValue(ConfigurationPath fullPath) => configuration.GetValue(GetPath(fullPath));
+
+    public override void SetValue(ConfigurationPath fullPath, ConfigurationValue value) => configuration.SetValue(GetPath(fullPath), value);
+
+    public ConfigurationPath GetPath(ConfigurationPath pathPart) => ConfigurationPath.Combine(Options.Separator, prefix, pathPart);
 
     public override IConfiguration Clone() => new ConfigurationSection(prefix, configuration);
 

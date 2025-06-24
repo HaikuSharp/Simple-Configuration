@@ -2,5 +2,5 @@
 
 public interface IConfigurationSection : IConfiguration
 {
-    string Prefix { get; }
+    ConfigurationPath Prefix { get; }
 }

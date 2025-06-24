@@ -6,19 +6,31 @@ namespace SC;
 
 public abstract class ConfigurationBase(string name, IConfigurationOptions options) : IConfiguration
 {
-    private readonly Dictionary<string, IConfigurationSection> m_SectionsCache = [];
+    private readonly Dictionary<ConfigurationPath, IConfigurationSection> m_SectionsCache = [];
 
     public ConfigurationBase(string name) : this(name, DefaultConfigurationOptions.Default) { }
 
     public string Name => name;
 
+    public abstract IEnumerable<ConfigurationPathValuePair> Pairs { get; }
+
+    public abstract IEnumerable<ConfigurationPath> Paths { get; }
+
+    public abstract IEnumerable<ConfigurationValue> Values { get; }
+
     public IConfigurationOptions Options => options;
 
-    public abstract bool HasSection(string prefix);
+    public ConfigurationValue this[ConfigurationPath path]
+    {
+        get => GetValue(path);
+        set => SetValue(path, value);
+    }
 
-    public abstract bool HasValue(string fullPath);
+    public abstract bool HasSection(ConfigurationPath prefix);
 
-    public IConfigurationSection GetSection(string prefix)
+    public abstract bool HasValue(ConfigurationPath fullPath);
+
+    public IConfigurationSection GetSection(ConfigurationPath prefix)
     {
         if(m_SectionsCache.TryGetValue(prefix, out var section)) return section;
 
@@ -32,9 +44,9 @@ public abstract class ConfigurationBase(string name, IConfigurationOptions optio
         return null;
     }
 
-    public abstract string GetValue(string fullPath);
+    public abstract ConfigurationValue GetValue(ConfigurationPath fullPath);
 
-    public abstract void SetValue(string fullPath, string value);
+    public abstract void SetValue(ConfigurationPath fullPath, ConfigurationValue value);
 
     public abstract IConfiguration Clone();
 

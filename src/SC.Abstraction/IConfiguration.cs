@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SC.Abstraction;
 
@@ -6,17 +7,25 @@ public interface IConfiguration : ICloneable
 {
     string Name { get; }
 
+    ConfigurationValue this[ConfigurationPath path] { get; set; }
+
+    IEnumerable<ConfigurationPathValuePair> Pairs { get; }
+
+    IEnumerable<ConfigurationPath> Paths { get; }
+
+    IEnumerable<ConfigurationValue> Values { get; }
+
     IConfigurationOptions Options { get; }
 
-    bool HasSection(string prefix);
+    bool HasSection(ConfigurationPath prefix);
 
-    bool HasValue(string fullPath);
+    bool HasValue(ConfigurationPath fullPath);
 
-    IConfigurationSection GetSection(string prefix);
+    IConfigurationSection GetSection(ConfigurationPath prefix);
 
-    string GetValue(string fullPath);
+    ConfigurationValue GetValue(ConfigurationPath fullPath);
 
-    void SetValue(string fullPath, string value);
+    void SetValue(ConfigurationPath fullPath, ConfigurationValue value);
 
     new IConfiguration Clone();
 }

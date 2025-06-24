@@ -7,29 +7,29 @@ namespace SC.Newtonsoft.JSON;
 
 public class JsonFileConfigurationSource(string fileName) : IConfigurationSource
 {
-    public IConfiguration Create(IConfigurationOptions options) => new Configuration(Path.GetFileNameWithoutExtension(fileName), options, FlattenJson(LoadJsonFile(), options.Separator));
+    public IConfiguration Create(IConfigurationOptions options) => new FlattenConfiguration(Path.GetFileNameWithoutExtension(fileName), options, FlattenJson(LoadJsonFile(), options.Separator));
 
-    private static IDictionary<string, string> FlattenJson(JToken token, string separator)
+    private static IDictionary<ConfigurationPath, ConfigurationValue> FlattenJson(JToken token, string separator)
     {
-        IDictionary<string, string> json = new Dictionary<string, string>();
-        FlattenToken(token, json, string.Empty, separator);
+        IDictionary<ConfigurationPath, ConfigurationValue> json = new Dictionary<ConfigurationPath, ConfigurationValue>();
+        FlattenToken(token, json, ConfigurationPath.Empty, separator);
         return json;
     }
 
-    private static void FlattenToken(JToken token, IDictionary<string, string> result, string prefix, string separator)
+    private static void FlattenToken(JToken token, IDictionary<ConfigurationPath, ConfigurationValue> result, ConfigurationPath prefix, string separator)
     {
-        string MergePrefix<T>(T obj) => string.IsNullOrEmpty(prefix) ? obj.ToString() : $"{prefix}{separator}{obj}";
+        ConfigurationPath GetPath<T>(T obj) => prefix.IsEmpty ? obj.ToString() : ConfigurationPath.Combine(separator, prefix, obj.ToString());
 
         switch(token.Type)
         {
             case JTokenType.Object:
-            foreach(var property in token.Children<JProperty>()) FlattenToken(property.Value, result, MergePrefix(property.Name), separator);
+            foreach(var property in token.Children<JProperty>()) FlattenToken(property.Value, result, GetPath(property.Name), separator);
             break;
             case JTokenType.Array:
             int index = 0;
             foreach(var value in token.Children())
             {
-                FlattenToken(value, result, MergePrefix(index), separator);
+                FlattenToken(value, result, GetPath(index), separator);
                 index++;
             }
             break;
