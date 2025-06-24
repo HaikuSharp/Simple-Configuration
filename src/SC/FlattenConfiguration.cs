@@ -36,5 +36,5 @@ public class FlattenConfiguration(string name, IConfigurationOptions options, ID
 
     public override IConfiguration Clone() => new FlattenConfiguration(Name, Options, m_Values.ToDictionary(k => k.Key, k => k.Value));
 
-    public static FlattenConfiguration Flat(IConfiguration configuration) => configuration is FlattenConfiguration flattenConfiguration ? flattenConfiguration : new(configuration.Name, configuration.Options, configuration.Pairs);
+    public static FlattenConfiguration Flatten(IConfiguration configuration) => configuration is FlattenConfiguration flattenConfiguration ? flattenConfiguration : new(configuration.Name, configuration.Options, configuration.Pairs);
 }

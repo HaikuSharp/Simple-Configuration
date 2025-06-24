@@ -19,9 +19,9 @@ public readonly struct ConfigurationValue(string value) : IEquatable<Configurati
 
     public override bool Equals(object obj) => (obj is null && IsNull) || (obj is ConfigurationValue cvalue && Equals(cvalue));
 
-    public override int GetHashCode() => m_Value.GetHashCode();
+    public override int GetHashCode() => ThisOrNull().GetHashCode();
 
-    public override string ToString() => m_Value;
+    public override string ToString() => ThisOrNull();
 
     public T To<T>() => (T)To(typeof(T));
 
@@ -32,6 +32,8 @@ public readonly struct ConfigurationValue(string value) : IEquatable<Configurati
         string value = m_Value;
         return value is null ? default : converter.CanConvertFrom(typeof(string)) ? converter.ConvertFromInvariantString(value) : null;
     }
+
+    private string ThisOrNull() => m_Value ?? NULL_VALUE_STRING;
 
     private static byte[] GetBits(string base64) => base64 == string.Empty ? [] : Convert.FromBase64String(base64);
 
