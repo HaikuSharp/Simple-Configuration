@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace SC;
 
-public class ReferenceConfiguration(IConfiguration primary, IConfiguration reference) : ConfigurationBase(reference.Name, reference.Options)
+public sealed class ReferenceConfiguration(IConfiguration primary, IConfiguration reference) : ConfigurationBase(reference.Name, reference.Options)
 {
     private readonly IConfiguration m_Reference = reference.Clone();
 

@@ -31,7 +31,7 @@ public struct ConfigurationPathEnumerator(string path, string separator) : IEnum
     private void MoveLastPart()
     {
 #if NETFRAMEWORK
-            Current = m_Path.Substring(m_CurrentPosition);
+        Current = m_Path.Substring(m_CurrentPosition);
 #else
         Current = m_Path[m_CurrentPosition..];
 #endif
@@ -41,7 +41,7 @@ public struct ConfigurationPathEnumerator(string path, string separator) : IEnum
     private void MoveNextPart()
     {
 #if NETFRAMEWORK
-            Current = m_Path.Substring(m_CurrentPosition, m_NextSeparator - m_CurrentPosition);
+        Current = m_Path.Substring(m_CurrentPosition, m_NextSeparator - m_CurrentPosition);
 #else
         Current = m_Path[m_CurrentPosition..m_NextSeparator];
 #endif

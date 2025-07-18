@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace SC;
 
-public class MultiConfiguration(string name, IConfigurationOptions options, IEnumerable<IConfiguration> configurations) : ConfigurationBase(name, options)
+public sealed class MultiConfiguration(string name, IConfigurationOptions options, IEnumerable<IConfiguration> configurations) : ConfigurationBase(name, options)
 {
     public override IEnumerable<ConfigurationPathValuePair> Pairs => configurations.SelectMany(c => c.Pairs).Distinct();
 

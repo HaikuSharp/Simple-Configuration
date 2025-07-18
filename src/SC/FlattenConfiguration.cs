@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace SC;
 
-public class FlattenConfiguration(string name, IConfigurationOptions options, IDictionary<ConfigurationPath, ConfigurationValue> values) : ConfigurationBase(name, options)
+public sealed class FlattenConfiguration(string name, IConfigurationOptions options, IDictionary<ConfigurationPath, ConfigurationValue> values) : ConfigurationBase(name, options)
 {
     private readonly IReadOnlyDictionary<ConfigurationPath, ConfigurationValue> m_ReadOnlyValues = new ReadOnlyDictionary<ConfigurationPath, ConfigurationValue>(values);
     private readonly IDictionary<ConfigurationPath, ConfigurationValue> m_Values = values;
@@ -19,6 +19,8 @@ public class FlattenConfiguration(string name, IConfigurationOptions options, ID
     public FlattenConfiguration(string name, IConfigurationOptions options) : this(name, options, new Dictionary<ConfigurationPath, ConfigurationValue>()) { }
 
     public FlattenConfiguration(string name) : this(name, DefaultConfigurationOptions.Default, new Dictionary<ConfigurationPath, ConfigurationValue>()) { }
+
+    public override int ValuesCount => m_ReadOnlyValues.Count;
 
     public override IEnumerable<ConfigurationPathValuePair> Pairs => m_ReadOnlyValues.Select(ConfigurationPathValuePair.FromKvp);
 

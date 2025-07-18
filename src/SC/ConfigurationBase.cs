@@ -1,6 +1,7 @@
 ﻿using SC.Abstraction;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SC;
 
@@ -8,9 +9,9 @@ public abstract class ConfigurationBase(string name, IConfigurationOptions optio
 {
     private readonly Dictionary<ConfigurationPath, IConfigurationSection> m_SectionsCache = [];
 
-    public ConfigurationBase(string name) : this(name, DefaultConfigurationOptions.Default) { }
-
     public string Name => name;
+
+    public virtual int ValuesCount => Pairs.Count();
 
     public abstract IEnumerable<ConfigurationPathValuePair> Pairs { get; }
 

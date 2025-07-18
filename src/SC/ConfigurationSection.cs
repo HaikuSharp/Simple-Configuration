@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace SC;
 
-public class ConfigurationSection(ConfigurationPath prefix, IConfiguration configuration) : ConfigurationBase(configuration.Name + configuration.Options.Separator + prefix, configuration.Options), IConfigurationSection
+public sealed class ConfigurationSection(ConfigurationPath prefix, IConfiguration configuration) : ConfigurationBase(configuration.Name + configuration.Options.Separator + prefix, configuration.Options), IConfigurationSection
 {
     public ConfigurationPath Prefix => prefix;
 

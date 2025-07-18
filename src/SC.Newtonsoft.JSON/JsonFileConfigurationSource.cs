@@ -4,7 +4,7 @@ using System.IO;
 
 namespace SC.Newtonsoft.JSON;
 
-public class JsonFileConfigurationSource(string fileName) : IConfigurationSource
+public sealed class JsonFileConfigurationSource(string fileName) : IConfigurationSource
 {
     public IConfiguration Create(IConfigurationOptions options) => new FlattenConfiguration(Path.GetFileNameWithoutExtension(fileName), options, JsonHelper.FlattenJson(LoadJsonJsonTokenFromFile(), options.Separator));
 

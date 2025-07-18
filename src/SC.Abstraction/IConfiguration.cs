@@ -7,6 +7,8 @@ public interface IConfiguration : ICloneable
 {
     string Name { get; }
 
+    int ValuesCount { get; }
+
     ConfigurationValue this[ConfigurationPath path] { get; set; }
 
     IEnumerable<ConfigurationPathValuePair> Pairs { get; }
