@@ -25,6 +25,10 @@ public readonly struct ConfigurationPathValuePair(ConfigurationPath path, Config
 
     public static ConfigurationPathValuePair FromKvp(KeyValuePair<ConfigurationPath, ConfigurationValue> kvp) => new(kvp.Key, kvp.Value);
 
+    public static implicit operator ConfigurationPath(ConfigurationPathValuePair pair) => pair.Path;
+
+    public static implicit operator ConfigurationValue(ConfigurationPathValuePair pair) => pair.Value;
+
     public static bool operator ==(ConfigurationPathValuePair left, ConfigurationPathValuePair right) => left.Equals(right);
 
     public static bool operator !=(ConfigurationPathValuePair left, ConfigurationPathValuePair right) => !(left == right);
