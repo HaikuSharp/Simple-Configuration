@@ -29,5 +29,9 @@ public interface IConfiguration : ICloneable
 
     void SetValue(ConfigurationPath fullPath, ConfigurationValue value);
 
+    void Add(ConfigurationPath fullPath, ConfigurationValue value);
+
+    void Remove(ConfigurationPath fullPath);
+
     new IConfiguration Clone();
 }

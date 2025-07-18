@@ -36,6 +36,10 @@ public sealed class FlattenConfiguration(string name, IConfigurationOptions opti
 
     public override void SetValue(ConfigurationPath fullPath, ConfigurationValue value) => m_Values[fullPath] = value;
 
+    public override void Add(ConfigurationPath fullPath, ConfigurationValue value) => m_Values.Add(fullPath, value);
+
+    public override void Remove(ConfigurationPath fullPath) => m_Values.Remove(fullPath);
+
     public override IConfiguration Clone() => new FlattenConfiguration(Name, Options, m_Values.ToDictionary(k => k.Key, k => k.Value));
 
     public static FlattenConfiguration Flatten(IConfiguration configuration) => configuration is FlattenConfiguration flattenConfiguration ? flattenConfiguration : new(configuration.Name, configuration.Options, configuration.Pairs);

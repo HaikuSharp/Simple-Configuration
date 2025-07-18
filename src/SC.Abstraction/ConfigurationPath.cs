@@ -36,11 +36,15 @@ public readonly struct ConfigurationPath(string path) : IEquatable<Configuration
 
     public static ConfigurationPath Combine(ConfigurationPath left, ConfigurationPath rigth) => Combine(DefaultSeparator, left, rigth);
 
-    public static ConfigurationPath Combine(string separator, string left, ConfigurationPath rigth) => new(left + separator + rigth.m_RootPath);
+    public static ConfigurationPath Combine(string left, string rigth) => Combine(DefaultSeparator, left, rigth);
 
-    public static ConfigurationPath Combine(string separator, ConfigurationPath left, string rigth) => new(left.m_RootPath + separator + rigth);
+    public static ConfigurationPath Combine(string separator, string left, ConfigurationPath rigth) => Combine(separator, left, rigth.m_RootPath);
 
-    public static ConfigurationPath Combine(string separator, ConfigurationPath left, ConfigurationPath rigth) => new(left.m_RootPath + separator + rigth.m_RootPath);
+    public static ConfigurationPath Combine(string separator, ConfigurationPath left, string rigth) => Combine(separator, left.m_RootPath, rigth);
+
+    public static ConfigurationPath Combine(string separator, ConfigurationPath left, ConfigurationPath rigth) => Combine(separator, left.m_RootPath, rigth.m_RootPath);
+
+    public static ConfigurationPath Combine(string separator, string left, string rigth) => new(left + separator + rigth);
 
     IEnumerator<string> IEnumerable<string>.GetEnumerator() => GetEnumerator();
 

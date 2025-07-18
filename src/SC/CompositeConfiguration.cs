@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace SC;
 
-public sealed class MultiConfiguration(string name, IConfigurationOptions options, IEnumerable<IConfiguration> configurations) : ConfigurationBase(name, options)
+public sealed class CompositeConfiguration(string name, IConfigurationOptions options, IEnumerable<IConfiguration> configurations) : ConfigurationBase(name, options)
 {
     public override IEnumerable<ConfigurationPathValuePair> Pairs => configurations.SelectMany(c => c.Pairs).Distinct();
 
@@ -20,5 +20,9 @@ public sealed class MultiConfiguration(string name, IConfigurationOptions option
 
     public override void SetValue(ConfigurationPath fullPath, ConfigurationValue value) => configurations.FirstOrDefault(c => c.HasValue(fullPath))?.SetValue(fullPath, value);
 
-    public override IConfiguration Clone() => new MultiConfiguration(Name, Options, configurations);
+    public override void Add(ConfigurationPath fullPath, ConfigurationValue value) => configurations.FirstOrDefault(c => !c.HasValue(fullPath))?.Add(fullPath, value);
+
+    public override void Remove(ConfigurationPath fullPath) => configurations.FirstOrDefault(c => c.HasValue(fullPath))?.Remove(fullPath);
+
+    public override IConfiguration Clone() => new CompositeConfiguration(Name, Options, configurations);
 }

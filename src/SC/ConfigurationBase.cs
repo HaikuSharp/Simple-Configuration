@@ -49,6 +49,10 @@ public abstract class ConfigurationBase(string name, IConfigurationOptions optio
 
     public abstract void SetValue(ConfigurationPath fullPath, ConfigurationValue value);
 
+    public abstract void Add(ConfigurationPath fullPath, ConfigurationValue value);
+
+    public abstract void Remove(ConfigurationPath fullPath);
+
     public abstract IConfiguration Clone();
 
     object ICloneable.Clone() => Clone();
