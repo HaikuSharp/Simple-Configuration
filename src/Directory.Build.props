@@ -1,18 +1,18 @@
 <Project>
-	
+
 	<PropertyGroup>
 		<TargetFrameworks>net481;netstandard2.1;net8.0;net9.0;net10.0</TargetFrameworks>
 		<LangVersion>preview</LangVersion>
 		<BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
 	</PropertyGroup>
-	
+
 	<PropertyGroup>
-		<BuildVersion>2.1.0</BuildVersion>
+		<BuildVersion>1.0.0</BuildVersion>
 		<Version>$(BuildVersion)</Version>
 		<AssemblyVersion>$(BuildVersion)</AssemblyVersion>
 		<FileVersion>$(BuildVersion)</FileVersion>
 	</PropertyGroup>
-	
+
 	<PropertyGroup>
 		<PackageId>$(MSBuildProjectName)</PackageId>
 		<Title>$(MSBuildProjectName)</Title>
@@ -25,10 +25,21 @@
 		<RepositoryUrl>$(PackageProjectUrl).git</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	</PropertyGroup>
-	
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+
+	<PropertyGroup Condition="$(Configuration.StartsWith('Debug'))">
+		<Optimize>false</Optimize>
+		<DebugType>full</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+		<DefineConstants>DEBUG</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="$(Configuration.StartsWith('Release'))">
+		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<ProduceReferenceAssemblyInOutDir>True</ProduceReferenceAssemblyInOutDir>
 		<WarningLevel>9999</WarningLevel>
 		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<DefineConstants>RELEASE</DefineConstants>
 	</PropertyGroup>
-	
+
 </Project>
