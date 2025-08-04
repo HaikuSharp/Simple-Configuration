@@ -1,8 +1,9 @@
-﻿using SC.Abstraction;
+﻿using Newtonsoft.Json.Linq;
+using SC.Abstraction;
 
 namespace SC.Newtonsoft.JSON;
 
-public sealed class JsonStringConfigurationSource(string name, string jsonString) : IConfigurationSource
+public class JsonStringConfigurationSource(string name, string jsonString) : IConfigurationSource
 {
-    public IConfiguration Create(IConfigurationOptions options) => new FlattenConfiguration(name, options, JsonHelper.FlattenJson(jsonString, options.Separator));
+    public IConfiguration GetConfiguration(IConfigurationSettings settings) => new JsonConfiguration(name, JToken.Parse(jsonString), settings);
 }

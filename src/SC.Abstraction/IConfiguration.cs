@@ -1,37 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace SC.Abstraction;
 
-public interface IConfiguration : ICloneable
+public interface IConfiguration
 {
     string Name { get; }
 
-    int ValuesCount { get; }
+    IConfigurationSettings Settings { get; }
 
-    ConfigurationValue this[ConfigurationPath path] { get; set; }
+    bool HasOption(string path);
 
-    IEnumerable<ConfigurationPathValuePair> Pairs { get; }
+    IConfigurationOption<T> GetOption<T>(string path);
 
-    IEnumerable<ConfigurationPath> Paths { get; }
-
-    IEnumerable<ConfigurationValue> Values { get; }
-
-    IConfigurationOptions Options { get; }
-
-    bool HasSection(ConfigurationPath prefix);
-
-    bool HasValue(ConfigurationPath fullPath);
-
-    IConfigurationSection GetSection(ConfigurationPath prefix);
-
-    ConfigurationValue GetValue(ConfigurationPath fullPath);
-
-    void SetValue(ConfigurationPath fullPath, ConfigurationValue value);
-
-    void Add(ConfigurationPath fullPath, ConfigurationValue value);
-
-    void Remove(ConfigurationPath fullPath);
-
-    new IConfiguration Clone();
+    IConfigurationOption<T> AddOption<T>(string path, T value);
 }

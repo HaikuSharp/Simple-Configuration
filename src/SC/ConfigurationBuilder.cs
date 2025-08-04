@@ -1,16 +1,20 @@
 ﻿using SC.Abstraction;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace SC;
 
-public sealed class ConfigurationBuilder : IConfigurationBuilder
+public class ConfigurationBuilder : IConfigurationBuilder
 {
     private readonly List<IConfigurationSource> m_Sources = [];
 
-    public IConfiguration Build(string name, IConfigurationOptions options) => new CompositeConfiguration(name, options, m_Sources.Select(s => s.Create(options)));
+    public IConfiguration Build(string name, IConfigurationSettings settings)
+    {
+        MergedConfiguration mergedConfiguration = new(name, settings);
+        foreach(var source in m_Sources) mergedConfiguration.AddConfiguration(source.GetConfiguration(settings));
+        return mergedConfiguration;
+    }
 
-    public IConfigurationBuilder AppendSource(IConfigurationSource source)
+    public IConfigurationBuilder Append(IConfigurationSource source)
     {
         m_Sources.Add(source);
         return this;

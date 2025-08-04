@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SC.Abstraction;
 
-public struct ConfigurationPathEnumerator(string path, string separator) : IEnumerator<string>
+public struct ConfigurationPathEnumerator(string path, string separator) : IEnumerator<string>, IEnumerable<string>
 {
     private readonly string m_Path = !string.IsNullOrWhiteSpace(path) ? path : throw new ArgumentException(null, nameof(path));
     private int m_CurrentPosition = 0;
@@ -28,25 +28,19 @@ public struct ConfigurationPathEnumerator(string path, string separator) : IEnum
         return true;
     }
 
-    private void MoveLastPart()
-    {
-#if NETFRAMEWORK
-        Current = m_Path.Substring(m_CurrentPosition);
-#else
-        Current = m_Path[m_CurrentPosition..];
-#endif
-        m_CurrentPosition = m_Path.Length;
-    }
+#pragma warning disable IDE0079
+#pragma warning disable IDE0057
+
+    private void MoveLastPart() => Current = m_Path.Substring(m_CurrentPosition);
 
     private void MoveNextPart()
     {
-#if NETFRAMEWORK
         Current = m_Path.Substring(m_CurrentPosition, m_NextSeparator - m_CurrentPosition);
-#else
-        Current = m_Path[m_CurrentPosition..m_NextSeparator];
-#endif
         m_CurrentPosition = m_NextSeparator + 1;
     }
+
+#pragma warning restore IDE0057
+#pragma warning restore IDE0079
 
     public void Reset()
     {
@@ -56,4 +50,10 @@ public struct ConfigurationPathEnumerator(string path, string separator) : IEnum
     }
 
     public readonly void Dispose() { }
+
+    public readonly ConfigurationPathEnumerator GetEnumerator() => this;
+
+    readonly IEnumerator<string> IEnumerable<string>.GetEnumerator() => GetEnumerator();
+
+    readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

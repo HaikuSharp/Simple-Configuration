@@ -1,46 +1,25 @@
 ﻿using SC.Abstraction;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace SC;
 
-public sealed class FlattenConfiguration(string name, IConfigurationOptions options, IDictionary<ConfigurationPath, ConfigurationValue> values) : ConfigurationBase(name, options)
+public sealed class FlattenConfiguration(string name, IConfigurationSettings settings) : IConfiguration
 {
-    private readonly IReadOnlyDictionary<ConfigurationPath, ConfigurationValue> m_ReadOnlyValues = new ReadOnlyDictionary<ConfigurationPath, ConfigurationValue>(values);
-    private readonly IDictionary<ConfigurationPath, ConfigurationValue> m_Values = values;
+    private readonly Dictionary<string, IConfigurationOption> m_Options = new(settings.InitializeCapacity);
 
-    public FlattenConfiguration(string name, IDictionary<ConfigurationPath, ConfigurationValue> values) : this(name, DefaultConfigurationOptions.Default, values) { }
+    public string Name => name;
 
-    public FlattenConfiguration(string name, IEnumerable<ConfigurationPathValuePair> pairs) : this(name, DefaultConfigurationOptions.Default, pairs.ToDictionary(p => p.Path, p => p.Value)) { }
+    public IConfigurationSettings Settings => settings;
 
-    public FlattenConfiguration(string name, IConfigurationOptions options, IEnumerable<ConfigurationPathValuePair> pairs) : this(name, options, pairs.ToDictionary(p => p.Path, p => p.Value)) { }
+    public bool HasOption(string path) => m_Options.ContainsKey(path);
 
-    public FlattenConfiguration(string name, IConfigurationOptions options) : this(name, options, new Dictionary<ConfigurationPath, ConfigurationValue>()) { }
+    public IConfigurationOption<T> GetOption<T>(string path) => m_Options[path] as IConfigurationOption<T>;
 
-    public FlattenConfiguration(string name) : this(name, DefaultConfigurationOptions.Default, new Dictionary<ConfigurationPath, ConfigurationValue>()) { }
-
-    public override int ValuesCount => m_ReadOnlyValues.Count;
-
-    public override IEnumerable<ConfigurationPathValuePair> Pairs => m_ReadOnlyValues.Select(ConfigurationPathValuePair.FromKvp);
-
-    public override IEnumerable<ConfigurationPath> Paths => m_ReadOnlyValues.Keys;
-
-    public override IEnumerable<ConfigurationValue> Values => m_ReadOnlyValues.Values;
-
-    public override bool HasSection(ConfigurationPath prefix) => m_Values.Keys.Any(k => k.IsPrefix(prefix));
-
-    public override bool HasValue(ConfigurationPath fullPath) => m_Values.ContainsKey(fullPath);
-
-    public override ConfigurationValue GetValue(ConfigurationPath fullPath) => m_Values.TryGetValue(fullPath, out var value) ? value : null;
-
-    public override void SetValue(ConfigurationPath fullPath, ConfigurationValue value) => m_Values[fullPath] = value;
-
-    public override void Add(ConfigurationPath fullPath, ConfigurationValue value) => m_Values.Add(fullPath, value);
-
-    public override void Remove(ConfigurationPath fullPath) => m_Values.Remove(fullPath);
-
-    public override IConfiguration Clone() => new FlattenConfiguration(Name, Options, m_Values.ToDictionary(k => k.Key, k => k.Value));
-
-    public static FlattenConfiguration Flatten(IConfiguration configuration) => configuration is FlattenConfiguration flattenConfiguration ? flattenConfiguration : new(configuration.Name, configuration.Options, configuration.Pairs);
+    public IConfigurationOption<T> AddOption<T>(string path, T value)
+    {
+        if(!HasOption(path)) throw new KeyNotFoundException();
+        var option = ConfigurationOption<T>.CreateAsDirty(path, value);
+        m_Options.Add(path, option);
+        return option;
+    }
 }

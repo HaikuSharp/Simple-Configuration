@@ -2,5 +2,5 @@
 
 public interface IConfigurationSource
 {
-    IConfiguration Create(IConfigurationOptions options);
+    IConfiguration GetConfiguration(IConfigurationSettings settings);
 }

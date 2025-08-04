@@ -1,8 +1,6 @@
 ﻿namespace SC.Abstraction;
 
-public interface IConfigurationSection : IConfiguration
+public interface IConfigurationSection : IConfiguration, IHasConfigurationPath
 {
-    ConfigurationPath Prefix { get; }
-
-    ConfigurationPath GetAbsolutePath(ConfigurationPath pathPart);
+    string GetAbsolutePath(string path);
 }
