@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace SC.Abstraction;
+﻿namespace SC.Abstraction;
 
 public interface IConfiguration
 {
