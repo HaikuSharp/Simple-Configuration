@@ -30,12 +30,12 @@ public class JsonConfiguration(string name, JToken jToken, IConfigurationSetting
 
     private JToken InternalGetRawJsonValue(string path)
     {
-        JToken currentToken = m_JsonRootToken;
+        var currentToken = m_JsonRootToken;
 
         if(string.IsNullOrWhiteSpace(path)) return currentToken;
         if(path.IndexOf(Settings.Separator) is -1) return currentToken.SelectToken(path);
 
-        foreach(var pathPart in InternalGetPathEnumerator(path))
+        foreach(string pathPart in InternalGetPathEnumerator(path))
         {
             currentToken = currentToken.SelectToken(path);
             if(currentToken is null) break;
