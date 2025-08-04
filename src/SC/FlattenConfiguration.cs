@@ -18,7 +18,7 @@ public sealed class FlattenConfiguration(string name, IConfigurationSettings set
     public IConfigurationOption<T> AddOption<T>(string path, T value)
     {
         if(!HasOption(path)) throw new KeyNotFoundException();
-        var option = ConfigurationOption<T>.CreateAsDirty(path, value);
+        ConfigurationOption<T> option = ConfigurationOption<T>.CreateAsDirty(path, value);
         m_Options.Add(path, option);
         return option;
     }

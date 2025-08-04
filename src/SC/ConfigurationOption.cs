@@ -10,14 +10,14 @@ public class ConfigurationOption<T>(string path, T value) : IConfigurationOption
     public int Version { get; private set; }
 
     public T Value
-    { 
-        get => field; 
-        set 
+    {
+        get => field;
+        set
         {
             if(EqualityComparer<T>.Default.Equals(field, value)) return;
             field = value;
             Version++;
-        } 
+        }
     } = value;
 
     public static ConfigurationOption<T> CreateAsDirty(string path, T value)

@@ -11,11 +11,11 @@ public class MergedConfiguration(string name, IConfigurationSettings settings) :
 
     public IConfigurationSettings Settings => settings;
 
-    public bool HasOption(string path) => InternalGetConfiguration(path, out var optionPath)?.HasOption(optionPath) ?? false;
+    public bool HasOption(string path) => InternalGetConfiguration(path, out string optionPath)?.HasOption(optionPath) ?? false;
 
-    public IConfigurationOption<T> GetOption<T>(string path) => InternalGetConfiguration(path, out var optionPath)?.GetOption<T>(optionPath);
+    public IConfigurationOption<T> GetOption<T>(string path) => InternalGetConfiguration(path, out string optionPath)?.GetOption<T>(optionPath);
 
-    public IConfigurationOption<T> AddOption<T>(string path, T value) => InternalGetConfiguration(path, out var optionPath)?.AddOption(optionPath, value);
+    public IConfigurationOption<T> AddOption<T>(string path, T value) => InternalGetConfiguration(path, out string optionPath)?.AddOption(optionPath, value);
 
     public void AddConfiguration(IConfiguration configuration) => m_Configurations.Add(configuration.Name, configuration);
 
@@ -24,7 +24,7 @@ public class MergedConfiguration(string name, IConfigurationSettings settings) :
 
     private IConfiguration InternalGetConfiguration(string path, out string optionPath)
     {
-        var firstSeparatorIndex = path.IndexOf(Settings.Separator);
+        int firstSeparatorIndex = path.IndexOf(Settings.Separator);
 
         if(firstSeparatorIndex is -1)
         {
