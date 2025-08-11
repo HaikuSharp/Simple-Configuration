@@ -10,7 +10,7 @@ public class ConfigurationBuilder : IConfigurationBuilder
     public IConfiguration Build(string name, IConfigurationSettings settings)
     {
         MergedConfiguration mergedConfiguration = new(name, settings);
-        foreach(var source in m_Sources) mergedConfiguration.AddConfiguration(source.GetConfiguration(settings));
+        foreach(var source in m_Sources) mergedConfiguration.AddConfiguration(source.CreateConfiguration(settings));
         return mergedConfiguration;
     }
 
