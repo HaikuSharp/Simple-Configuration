@@ -1,5 +1,7 @@
 ﻿using SC.Abstraction;
 using SC.Extensions;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SC;
 
@@ -10,6 +12,8 @@ public class ConfigurationSection(IConfiguration configuration, string path) : I
     public string Path => path;
 
     public IConfigurationSettings Settings => configuration.Settings;
+
+    public IEnumerable<IConfigurationOption> LoadedOptions => configuration.LoadedOptions.Where(o => o.Path.StartsWith(Path));
 
     public bool HasOption(string path) => configuration.HasOption(GetAbsolutePath(path));
 

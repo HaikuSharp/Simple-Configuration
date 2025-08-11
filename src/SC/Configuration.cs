@@ -13,6 +13,8 @@ public sealed class Configuration(string name, IRawProvider rawProvider, IConfig
 
     public IConfigurationSettings Settings => settings;
 
+    public IEnumerable<IConfigurationOption> LoadedOptions => m_Options.Values;
+
     public bool HasOption(string path) => m_Options.ContainsKey(path) || rawProvider.HasRaw(path);
 
     public IConfigurationOption<T> GetOption<T>(string path) => m_Options.TryGetValue(path, out var loadedOption) ? loadedOption as IConfigurationOption<T> : InternalVerifyAndAddRawOption<T>(path);
@@ -26,7 +28,7 @@ public sealed class Configuration(string name, IRawProvider rawProvider, IConfig
         return option;
     }
 
-    private ConfigurationOption<T> InternalVerifyAndAddRawOption<T>(string path) => !m_Options.Values.Any(o => path.StartsWith(o.Path)) ? InternalAddRawOption<T>(path) : throw new InvalidOperationException();
+    private ConfigurationOption<T> InternalVerifyAndAddRawOption<T>(string path) => !LoadedOptions.Any(o => path.StartsWith(o.Path)) ? InternalAddRawOption<T>(path) : throw new InvalidOperationException();
 
     private ConfigurationOption<T> InternalAddRawOption<T>(string path) => rawProvider.TryGetRaw<T>(path, out var rawValue) ? InternalAddOption(path, rawValue, false) : null;
 

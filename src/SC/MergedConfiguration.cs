@@ -1,5 +1,6 @@
 ﻿using SC.Abstraction;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SC;
 
@@ -10,6 +11,8 @@ public class MergedConfiguration(string name, IConfigurationSettings settings) :
     public string Name => name;
 
     public IConfigurationSettings Settings => settings;
+
+    public IEnumerable<IConfigurationOption> LoadedOptions => m_Configurations.Values.SelectMany(c => c.LoadedOptions);
 
     public bool HasOption(string path) => InternalGetConfiguration(path, out string optionPath)?.HasOption(optionPath) ?? false;
 

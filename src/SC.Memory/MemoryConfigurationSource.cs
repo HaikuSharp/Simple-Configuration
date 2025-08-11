@@ -1,5 +1,4 @@
-﻿using SC;
-using SC.Abstraction;
+﻿using SC.Abstraction;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,7 +15,7 @@ public class MemoryConfigurationSource(string name, IDictionary<string, object> 
 
         public bool TryGetRaw<T>(string path, out T rawValue)
         {
-            if(source.TryGetValue(path, out var value))
+            if(source.TryGetValue(path, out object value))
             {
                 rawValue = InternalConvertValue<T>(value);
                 return true;
