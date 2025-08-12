@@ -1,4 +1,6 @@
-﻿namespace SC.Abstraction;
+﻿using System;
+
+namespace SC.Abstraction;
 
 public interface IConfigurationOption<T> : IConfigurationOption
 {
@@ -11,5 +13,11 @@ public interface IConfigurationOption
 
     int Version { get; }
 
+    Type ValueType { get; }
+
     object Value { get; }
+
+    void Save(IConfigurationValueSource valueSource);
+
+    void Load(IConfigurationValueSource valueSource);
 }

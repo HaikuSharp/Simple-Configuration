@@ -2,22 +2,26 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 
 namespace SC.Memory;
 
 public class MemoryConfigurationSource(string name, IDictionary<string, object> source) : ConfigurationSourceBase(name)
 {
-    protected override IRawProvider GetRawProvider(IConfigurationSettings settings) => new MemoryRawProvider(source);
+    protected override IConfigurationValueSource GetValueSource(IConfigurationSettings settings) => new MemoryConfigurationValueSource(source);
 
-    private class MemoryRawProvider(IDictionary<string, object> source) : IRawProvider
+    private class MemoryConfigurationValueSource(IDictionary<string, object> source) : IConfigurationValueSource
     {
-        public bool HasRaw(string path) => source.ContainsKey(path);
+        private readonly IDictionary<string, object> m_Source = source;
+        private readonly Dictionary<string, object> m_Values = source.ToDictionary(k => k.Key, k => k.Value);
 
-        public bool TryGetRaw(string path, Type type, out object rawValue)
+        public bool HasRaw(string path) => m_Values.ContainsKey(path);
+
+        public bool TryGetRaw<T>(string path, out T rawValue)
         {
-            if(source.TryGetValue(path, out object value))
+            if(m_Values.TryGetValue(path, out object value))
             {
-                rawValue = InternalConvertValue(value, type);
+                rawValue = InternalConvertValue<T>(value);
                 return true;
             }
 
@@ -25,14 +29,26 @@ public class MemoryConfigurationSource(string name, IDictionary<string, object> 
             return false;
         }
 
-        public object GetRaw(string path, Type type) => InternalConvertValue(source[path], type);
+        public T GetRaw<T>(string path) => InternalConvertValue<T>(m_Values[path]);
 
-        public void SetRaw(string path, object rawValue) => source[path] = rawValue;
+        public void SetRaw<T>(string path, T rawValue) => m_Values[path] = rawValue;
+
+        private static T InternalConvertValue<T>(object sourceValue) => (T)InternalConvertValue(sourceValue, typeof(T));
 
         private static object InternalConvertValue(object sourceValue, Type type)
         {
             var converter = TypeDescriptor.GetConverter(sourceValue.GetType());
             return converter.CanConvertTo(type) ? converter.ConvertTo(sourceValue, type) : throw new InvalidCastException();
+        }
+
+        public void Save() => CopyValues(m_Source, m_Values);
+
+        public void Load() => CopyValues(m_Values, m_Source);
+
+        private static void CopyValues(IDictionary<string, object> values, IDictionary<string, object> source)
+        {
+            values.Clear();
+            foreach(var kvp in source) values[kvp.Key] = kvp.Value;
         }
     }
 }
