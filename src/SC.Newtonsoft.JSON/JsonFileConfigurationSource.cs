@@ -28,7 +28,7 @@ public class JsonFileConfigurationSource(string name, string filePath) : Configu
             return token is not null ? token.ToObject<T>() : default;
         }
 
-        public void SetRaw<T>(string path, T rawValue) => InternalGetOrCreateRawJsonVlaue(path)?.Replace(JToken.FromObject(rawValue));
+        public void SetRaw<T>(string path, T rawValue) => InternalGetOrCreateRawJsonVlaue(path).Replace(JToken.FromObject(rawValue));
 
         private JToken InternalGetOrCreateRawJsonVlaue(string path)
         {
@@ -70,8 +70,8 @@ public class JsonFileConfigurationSource(string name, string filePath) : Configu
                 return;
             }
 
-            using var streamReader = new StreamReader(filePath);
-            using var jsonReader = new JsonTextReader(streamReader);
+            using StreamReader streamReader = new(filePath);
+            using JsonTextReader jsonReader = new(streamReader);
             m_Source = JToken.Load(jsonReader);
         }
 
@@ -79,12 +79,12 @@ public class JsonFileConfigurationSource(string name, string filePath) : Configu
         {
             if(m_Source == null) return;
 
-            var directory = Path.GetDirectoryName(filePath);
+            string directory = Path.GetDirectoryName(filePath);
 
-            if(!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) Directory.CreateDirectory(directory);
+            if(!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) _ = Directory.CreateDirectory(directory);
 
-            using var streamWriter = new StreamWriter(filePath);
-            using var jsonWriter = new JsonTextWriter(streamWriter)
+            using StreamWriter streamWriter = new(filePath);
+            using JsonTextWriter jsonWriter = new(streamWriter)
             {
                 Formatting = Formatting.Indented
             };
@@ -100,10 +100,10 @@ public class JsonFileConfigurationSource(string name, string filePath) : Configu
                 return;
             }
 
-            using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
+            using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
 
-            using var streamReader = new StreamReader(fileStream);
-            using var jsonReader = new JsonTextReader(streamReader);
+            using StreamReader streamReader = new(fileStream);
+            using JsonTextReader jsonReader = new(streamReader);
             m_Source = await JToken.LoadAsync(jsonReader).ConfigureAwait(false);
         }
 
@@ -111,14 +111,14 @@ public class JsonFileConfigurationSource(string name, string filePath) : Configu
         {
             if(m_Source == null) return;
 
-            var directory = Path.GetDirectoryName(filePath);
+            string directory = Path.GetDirectoryName(filePath);
 
-            if(!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) Directory.CreateDirectory(directory);
+            if(!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) _ = Directory.CreateDirectory(directory);
 
-            using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true);
+            using FileStream fileStream = new(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true);
 
-            using var streamWriter = new StreamWriter(fileStream);
-            using var jsonWriter = new JsonTextWriter(streamWriter)
+            using StreamWriter streamWriter = new(fileStream);
+            using JsonTextWriter jsonWriter = new(streamWriter)
             {
                 Formatting = Formatting.Indented
             };

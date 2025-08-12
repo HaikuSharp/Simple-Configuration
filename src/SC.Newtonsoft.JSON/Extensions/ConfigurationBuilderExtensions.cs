@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using SC.Abstraction;
+﻿using SC.Abstraction;
 
 namespace SC.Newtonsoft.JSON.Extensions;
 

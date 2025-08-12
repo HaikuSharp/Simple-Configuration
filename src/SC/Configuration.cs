@@ -91,5 +91,4 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
 
         public void Load(IConfigurationValueSource valueSource) => Value = valueSource.GetRaw<T>(path);
     }
-
 }
