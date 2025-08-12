@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SC.Abstraction;
 
@@ -19,4 +20,8 @@ public interface IConfiguration
     void Save(string path);
 
     void Load(string path);
+
+    Task SaveAsync(string path);
+
+    Task LoadAsync(string path);
 }

@@ -2,6 +2,7 @@
 using Sugar.Object.Extensions;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SC;
 
@@ -49,6 +50,28 @@ public class ConfigurationRoot(string name, IConfigurationSettings settings) : I
         }
 
         foreach(var configuration in m_Configurations.Values) configuration.Load(null);
+    }
+
+    public async Task SaveAsync(string path)
+    {
+        if(!string.IsNullOrEmpty(path))
+        {
+            await InternalGetConfiguration(path, out string optionPath).SaveAsync(optionPath);
+            return;
+        }
+
+        foreach(var configuration in m_Configurations.Values) await configuration.SaveAsync(null);
+    }
+
+    public async Task LoadAsync(string path)
+    {
+        if(!string.IsNullOrEmpty(path))
+        {
+            await InternalGetConfiguration(path, out string optionPath).LoadAsync(optionPath);
+            return;
+        }
+
+        foreach(var configuration in m_Configurations.Values) await configuration.LoadAsync(null);
     }
 
 #pragma warning disable IDE0079

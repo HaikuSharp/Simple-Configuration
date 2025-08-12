@@ -1,7 +1,9 @@
 ﻿using SC.Abstraction;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SC;
 
@@ -23,19 +25,39 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
 
     public void Save(string path)
     {
-        foreach(var option in LoadedOptions)
-        {
-            if(!option.Path.StartsWith(path)) return;
-            option.Save(valueSource);
-        }
-
+        InternalSaveOptions(path);
         valueSource.Save();
     }
 
     public void Load(string path)
     {
         valueSource.Load();
+        InternalLoadOptions(path);
+    }
 
+    public async Task SaveAsync(string path)
+    {
+        InternalSaveOptions(path);
+        await valueSource.SaveAsync();
+    }
+
+    public async Task LoadAsync(string path)
+    {
+        await valueSource.LoadAsync();
+        InternalLoadOptions(path);
+    }
+
+    private void InternalSaveOptions(string path)
+    {
+        foreach(var option in LoadedOptions)
+        {
+            if(!option.Path.StartsWith(path)) return;
+            option.Save(valueSource);
+        }
+    }
+
+    private void InternalLoadOptions(string path)
+    {
         foreach(var option in LoadedOptions)
         {
             if(!option.Path.StartsWith(path)) return;

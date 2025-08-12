@@ -2,6 +2,7 @@
 using SC.Extensions;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SC;
 
@@ -26,4 +27,8 @@ public class ConfigurationSection(IConfiguration configuration, string path) : I
     public void Save(string path) => configuration.Save(GetAbsolutePath(path));
 
     public void Load(string path) => configuration.Load(GetAbsolutePath(path));
+
+    public async Task SaveAsync(string path) => await configuration.SaveAsync(GetAbsolutePath(path));
+
+    public async Task LoadAsync(string path) => await configuration.LoadAsync(GetAbsolutePath(path));
 }
