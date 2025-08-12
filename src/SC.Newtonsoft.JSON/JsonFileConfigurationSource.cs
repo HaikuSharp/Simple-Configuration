@@ -2,12 +2,13 @@
 using Newtonsoft.Json.Linq;
 using SC.Abstraction;
 using Sugar.Object.Extensions;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace SC.Newtonsoft.JSON;
 
-public class JsonFileConfigurationSource(string name, string filePath) : ConfigurationSourceBase(name)
+public class JsonFileConfigurationSource(string filePath) : ConfigurationSourceBase(Path.GetFileNameWithoutExtension(filePath))
 {
     protected override IConfigurationValueSource GetValueSource(IConfigurationSettings settings) => new JsonFileConfigurationValueSource(filePath, settings);
 
@@ -19,8 +20,16 @@ public class JsonFileConfigurationSource(string name, string filePath) : Configu
 
         public bool TryGetRaw<T>(string path, out T rawValue)
         {
-            rawValue = GetRaw<T>(path);
-            return rawValue is not null;
+            var token = InternalGetRawJsonValue(path);
+            
+            if(token is not null)
+            {
+                rawValue = token.ToObject<T>();
+                return true;
+            }
+
+            rawValue = default;
+            return false;
         }
 
         public T GetRaw<T>(string path)
@@ -54,7 +63,7 @@ public class JsonFileConfigurationSource(string name, string filePath) : Configu
 
             foreach(string pathPart in InternalGetPathEnumerator(path))
             {
-                currentToken = currentToken.SelectToken(path);
+                currentToken = currentToken.SelectToken(pathPart);
                 if(currentToken is null) break;
             }
 
@@ -65,11 +74,7 @@ public class JsonFileConfigurationSource(string name, string filePath) : Configu
 
         public void Load()
         {
-            if(!File.Exists(filePath))
-            {
-                m_Source = new JObject();
-                return;
-            }
+            if(!File.Exists(filePath)) throw new FileNotFoundException(filePath);
 
             using StreamReader streamReader = new(filePath);
             using JsonTextReader jsonReader = new(streamReader);

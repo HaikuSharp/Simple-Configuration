@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SC.Newtonsoft.JSON", "SC.Ne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SC.Memory", "SC.Memory\SC.Memory.csproj", "{4577269B-120B-4F1E-B5BD-097E0C1311D5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SC.Tests", "SC.Tests\SC.Tests.csproj", "{AE1710D4-58EF-451A-AEB4-B563FCE0A39B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{4577269B-120B-4F1E-B5BD-097E0C1311D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4577269B-120B-4F1E-B5BD-097E0C1311D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4577269B-120B-4F1E-B5BD-097E0C1311D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE1710D4-58EF-451A-AEB4-B563FCE0A39B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE1710D4-58EF-451A-AEB4-B563FCE0A39B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE1710D4-58EF-451A-AEB4-B563FCE0A39B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE1710D4-58EF-451A-AEB4-B563FCE0A39B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

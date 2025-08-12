@@ -75,7 +75,7 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
 
     private ConfigurationOption<T> InternalAddRawOption<T>(string path) => valueSource.TryGetRaw(path, out T raw) ? InternalAddOption(path, raw, false) : null;
 
-    private class ConfigurationOption<T>(string path, T value) : IConfigurationOption<T>
+    private sealed class ConfigurationOption<T>(string path, T value) : IConfigurationOption<T>
     {
         public string Path => path;
 
@@ -85,7 +85,7 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
 
         public T Value
         {
-            get => field;
+            get;
             set
             {
                 if(EqualityComparer<T>.Default.Equals(field, value)) return;
@@ -121,6 +121,8 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
             Value = value;
             Reset();
         }
+
+        public override string ToString() => $"({Path}, {Value})";
 
         private bool IsDirty() => Version is not 0;
 

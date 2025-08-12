@@ -31,7 +31,11 @@ public struct ConfigurationPathEnumerator(string path, string separator) : IEnum
 #pragma warning disable IDE0079
 #pragma warning disable IDE0057
 
-    private void MoveLastPart() => Current = m_Path.Substring(m_CurrentPosition);
+    private void MoveLastPart()
+    {
+        Current = m_Path.Substring(m_CurrentPosition);
+        m_CurrentPosition = m_Path.Length;
+    }
 
     private void MoveNextPart()
     {
