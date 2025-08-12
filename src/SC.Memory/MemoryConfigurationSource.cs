@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SC.Memory;
 
@@ -49,6 +50,18 @@ public class MemoryConfigurationSource(string name, IDictionary<string, object> 
         {
             values.Clear();
             foreach(var kvp in source) values[kvp.Key] = kvp.Value;
+        }
+
+        public Task SaveAsync()
+        {
+            Save();
+            return Task.CompletedTask;
+        }
+
+        public Task LoadAsync()
+        {
+            Load();
+            return Task.CompletedTask;
         }
     }
 }

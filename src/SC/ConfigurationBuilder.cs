@@ -7,11 +7,11 @@ public class ConfigurationBuilder : IConfigurationBuilder
 {
     private readonly List<IConfigurationSource> m_Sources = [];
 
-    public IConfiguration Build(string name, IConfigurationSettings settings)
+    public IConfigurationRoot Build(string name, IConfigurationSettings settings)
     {
-        MergedConfiguration mergedConfiguration = new(name, settings);
-        foreach(var source in m_Sources) mergedConfiguration.AddConfiguration(source.CreateConfiguration(settings));
-        return mergedConfiguration;
+        ConfigurationRoot root = new(name, settings);
+        foreach(var source in m_Sources) root.AddConfiguration(source.CreateConfiguration(settings));
+        return root;
     }
 
     public IConfigurationBuilder Append(IConfigurationSource source)

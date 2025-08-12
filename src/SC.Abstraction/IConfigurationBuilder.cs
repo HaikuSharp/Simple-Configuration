@@ -2,7 +2,7 @@
 
 public interface IConfigurationBuilder
 {
-    IConfiguration Build(string name, IConfigurationSettings settings);
+    IConfigurationRoot Build(string name, IConfigurationSettings settings);
 
     IConfigurationBuilder Append(IConfigurationSource source);
 }

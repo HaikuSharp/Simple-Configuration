@@ -16,7 +16,7 @@ public interface IConfigurationValueSource
 
     void Load();
 
-    ValueTask SaveAsync();
+    Task SaveAsync();
 
-    ValueTask LoadAsync();
+    Task LoadAsync();
 }

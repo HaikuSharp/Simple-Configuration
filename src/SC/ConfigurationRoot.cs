@@ -1,10 +1,11 @@
 ﻿using SC.Abstraction;
+using Sugar.Object.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace SC;
 
-public class MergedConfiguration(string name, IConfigurationSettings settings) : IConfiguration
+public class ConfigurationRoot(string name, IConfigurationSettings settings) : IConfigurationRoot
 {
     private readonly Dictionary<string, IConfiguration> m_Configurations = [];
 
@@ -20,7 +21,13 @@ public class MergedConfiguration(string name, IConfigurationSettings settings) :
 
     public IConfigurationOption<T> AddOption<T>(string path, T value) => InternalGetConfiguration(path, out string optionPath)?.AddOption(optionPath, value);
 
+    public bool HasConfiguration(string name) => m_Configurations.ContainsKey(name);
+
+    public IConfiguration GetConfiguration(string name) => m_Configurations.TryGetValue(name, out var configuration) ? configuration : null;
+
     public void AddConfiguration(IConfiguration configuration) => m_Configurations.Add(configuration.Name, configuration);
+
+    public void RemoveConfiguration(string name) => m_Configurations.Remove(name).Forget();
 
     public void Save(string path)
     {
