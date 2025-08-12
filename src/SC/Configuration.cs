@@ -22,17 +22,6 @@ public sealed class Configuration(string name, IRawProvider rawProvider, IConfig
 
     public IConfigurationOption<T> AddOption<T>(string path, T value) => InternalAddOption(path, value, !rawProvider.HasRaw(path));
 
-    private ConfigurationOption<T> InternalAddOption<T>(string path, T value, bool isDirty)
-    {
-        ConfigurationOption<T> option = ConfigurationOption<T>.Create(path, value, isDirty);
-        m_Options.Add(path, option);
-        return option;
-    }
-
-    private ConfigurationOption<T> InternalVerifyAndAddRawOption<T>(string path) => !LoadedOptions.Any(o => path.StartsWith(o.Path)) ? InternalAddRawOption<T>(path) : throw new InvalidOperationException();
-
-    private ConfigurationOption<T> InternalAddRawOption<T>(string path) => rawProvider.TryGetRaw(path, typeof(T), out object rawValue) ? InternalAddOption(path, (T)rawValue, false) : null;
-
     public void Save(string path)
     {
         foreach(var option in GetDirtyOptions(path))
@@ -50,6 +39,17 @@ public sealed class Configuration(string name, IRawProvider rawProvider, IConfig
             option.SetObject(rawProvider.GetRaw(option.Path, option.ValueType));
         }
     }
+
+    private ConfigurationOption<T> InternalAddOption<T>(string path, T value, bool isDirty)
+    {
+        ConfigurationOption<T> option = ConfigurationOption<T>.Create(path, value, isDirty);
+        m_Options.Add(path, option);
+        return option;
+    }
+
+    private ConfigurationOption<T> InternalVerifyAndAddRawOption<T>(string path) => !LoadedOptions.Any(o => path.StartsWith(o.Path)) ? InternalAddRawOption<T>(path) : throw new InvalidOperationException();
+
+    private ConfigurationOption<T> InternalAddRawOption<T>(string path) => rawProvider.TryGetRaw(path, typeof(T), out object rawValue) ? InternalAddOption(path, (T)rawValue, false) : null;
 
     private IEnumerable<ConfigurationOptionBase> GetDirtyOptions(string path) => GetOptions(path).Where(o => o.IsDirty());
 
