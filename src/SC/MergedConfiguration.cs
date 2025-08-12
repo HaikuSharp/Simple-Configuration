@@ -22,9 +22,27 @@ public class MergedConfiguration(string name, IConfigurationSettings settings) :
 
     public void AddConfiguration(IConfiguration configuration) => m_Configurations.Add(configuration.Name, configuration);
 
-    public void Save(string path) => InternalGetConfiguration(path, out string optionPath).Save(optionPath);
+    public void Save(string path)
+    {
+        if(!string.IsNullOrEmpty(path))
+        {
+            InternalGetConfiguration(path, out string optionPath).Save(optionPath);
+            return;
+        }
 
-    public void Load(string path) => InternalGetConfiguration(path, out string optionPath).Load(optionPath);
+        foreach(var configuration in m_Configurations.Values) configuration.Save(null);
+    }
+
+    public void Load(string path)
+    {
+        if(!string.IsNullOrEmpty(path))
+        {
+            InternalGetConfiguration(path, out string optionPath).Load(optionPath);
+            return;
+        }
+
+        foreach(var configuration in m_Configurations.Values) configuration.Load(null);
+    }
 
 #pragma warning disable IDE0079
 #pragma warning disable IDE0057
