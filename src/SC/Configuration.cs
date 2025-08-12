@@ -19,7 +19,7 @@ public sealed class Configuration(string name, IRawProvider rawProvider, IConfig
 
     public IConfigurationOption<T> GetOption<T>(string path) => m_Options.TryGetValue(path, out var loadedOption) ? loadedOption as IConfigurationOption<T> : InternalVerifyAndAddRawOption<T>(path);
 
-    public IConfigurationOption<T> AddOption<T>(string path, T value) => InternalAddOption(path, value, rawProvider.HasRaw(path));
+    public IConfigurationOption<T> AddOption<T>(string path, T value) => InternalAddOption(path, value, !rawProvider.HasRaw(path));
 
     private ConfigurationOption<T> InternalAddOption<T>(string path, T value, bool isDirty)
     {
