@@ -28,9 +28,9 @@ public class JsonFileConfigurationSource(string name, string filePath) : Configu
             return token is not null ? token.ToObject<T>() : default;
         }
 
-        public void SetRaw<T>(string path, T rawValue) => InternalGetOrCreateRawJsonVlaue(path).Replace(JToken.FromObject(rawValue));
+        public void SetRaw<T>(string path, T rawValue) => InternalGetOrCreateRawJsonValue(path).Replace(JToken.FromObject(rawValue));
 
-        private JToken InternalGetOrCreateRawJsonVlaue(string path)
+        private JToken InternalGetOrCreateRawJsonValue(string path)
         {
             var currentToken = m_Source;
 
