@@ -70,7 +70,7 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
             {
                 if(EqualityComparer<T>.Default.Equals(field, value)) return;
                 field = value;
-                Version++;
+                MarkAsDirty();
             }
         } = value;
 
@@ -85,10 +85,33 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
 
         public void Save(IConfigurationValueSource valueSource)
         {
-            if(!this.IsDirty()) return;
+            if(!IsDirty()) return;
             valueSource.SetRaw(Path, Value);
+            Reset();
         }
 
-        public void Load(IConfigurationValueSource valueSource) => Value = valueSource.GetRaw<T>(path);
+        public void Load(IConfigurationValueSource valueSource)
+        {
+            if(!valueSource.TryGetRaw<T>(Path, out var value))
+            {
+                MarkAsDirtyIfNeeded();
+                return;
+            }
+
+            Value = value;
+            Reset();
+        }
+
+        private bool IsDirty() => Version is not 0;
+
+        private void MarkAsDirty() => Version++;
+
+        private void MarkAsDirtyIfNeeded()
+        {
+            if(IsDirty()) return;
+            MarkAsDirty();
+        }
+
+        private void Reset() => Version = 0;
     }
 }
