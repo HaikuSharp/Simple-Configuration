@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using SC.Abstraction;
+using System;
 
 namespace SC.Newtonsoft.JSON;
 
@@ -11,25 +12,15 @@ public class JsonConfigurationSource(string name, JToken token) : ConfigurationS
     {
         public bool HasRaw(string path) => InternalGetRawJsonValue(path) is not null;
 
-        public bool TryGetRaw<T>(string path, out T rawValue)
+        public bool TryGetRaw(string path, Type type, out object rawValue)
         {
-            var token = InternalGetRawJsonValue(path);
-
-            if(token is not null)
-            {
-                rawValue = token.ToObject<T>();
-                return true;
-            }
-
-            rawValue = default;
-            return false;
+            rawValue = GetRaw(path, type);
+            return rawValue is not null;
         }
 
-        public T GetRaw<T>(string path)
-        {
-            var token = InternalGetRawJsonValue(path);
-            return token is null ? default : token.ToObject<T>();
-        }
+        public object GetRaw(string path, Type type) => InternalGetRawJsonValue(path)?.ToObject(type);
+
+        public void SetRaw(string path, object rawValue) => InternalGetRawJsonValue(path)?.Replace(JToken.FromObject(rawValue));
 
         private JToken InternalGetRawJsonValue(string path)
         {

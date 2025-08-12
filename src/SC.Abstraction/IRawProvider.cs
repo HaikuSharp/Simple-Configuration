@@ -1,12 +1,14 @@
-﻿namespace SC.Abstraction;
+﻿using System;
+
+namespace SC.Abstraction;
 
 public interface IRawProvider
 {
     bool HasRaw(string path);
 
-    bool TryGetRaw<T>(string path, out T rawValue);
+    bool TryGetRaw(string path, Type type, out object rawValue);
 
-    T GetRaw<T>(string path);
+    object GetRaw(string path, Type type);
 
-    // void SetRaw<T>(string path, T rawValue);
+    void SetRaw(string path, object rawValue);
 }

@@ -22,6 +22,10 @@ public class MergedConfiguration(string name, IConfigurationSettings settings) :
 
     public void AddConfiguration(IConfiguration configuration) => m_Configurations.Add(configuration.Name, configuration);
 
+    public void Save(string path) => InternalGetConfiguration(path, out string optionPath).Save(optionPath);
+
+    public void Load(string path) => InternalGetConfiguration(path, out string optionPath).Load(optionPath);
+
 #pragma warning disable IDE0079
 #pragma warning disable IDE0057
 

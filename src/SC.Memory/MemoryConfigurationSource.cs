@@ -13,11 +13,11 @@ public class MemoryConfigurationSource(string name, IDictionary<string, object> 
     {
         public bool HasRaw(string path) => source.ContainsKey(path);
 
-        public bool TryGetRaw<T>(string path, out T rawValue)
+        public bool TryGetRaw(string path, Type type, out object rawValue)
         {
             if(source.TryGetValue(path, out object value))
             {
-                rawValue = InternalConvertValue<T>(value);
+                rawValue = InternalConvertValue(value, type);
                 return true;
             }
 
@@ -25,12 +25,14 @@ public class MemoryConfigurationSource(string name, IDictionary<string, object> 
             return false;
         }
 
-        public T GetRaw<T>(string path) => InternalConvertValue<T>(source[path]);
+        public object GetRaw(string path, Type type) => InternalConvertValue(source[path], type);
 
-        private static T InternalConvertValue<T>(object sourceValue)
+        public void SetRaw(string path, object rawValue) => source[path] = rawValue;
+
+        private static object InternalConvertValue(object sourceValue, Type type)
         {
             var converter = TypeDescriptor.GetConverter(sourceValue.GetType());
-            return converter.CanConvertTo(typeof(T)) ? (T)converter.ConvertTo(sourceValue, typeof(T)) : throw new InvalidCastException();
+            return converter.CanConvertTo(type) ? converter.ConvertTo(sourceValue, type) : throw new InvalidCastException();
         }
     }
 }
