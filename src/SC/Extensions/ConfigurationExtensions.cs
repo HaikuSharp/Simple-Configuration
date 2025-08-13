@@ -27,6 +27,12 @@ public static class ConfigurationExtensions
 
     public static T GetValue<T>(this IConfiguration configuration, string path) => configuration.TryGetOption<T>(path, out var option) ? option.Value : default;
 
+    public static void SetValue<T>(this IConfiguration configuration, string path, T value)
+    {
+        if(!configuration.TryGetOption<T>(path, out var option)) return;
+        option.Value = value;
+    }
+
     public static void Save(this IConfiguration configuration) => configuration.Save(null);
 
     public static void Load(this IConfiguration configuration) => configuration.Load(null);
