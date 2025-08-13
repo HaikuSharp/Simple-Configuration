@@ -82,7 +82,7 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
 
     private ConfigurationOption<T> InternalAddRawOption<T>(string path) => valueSource.TryGetRaw(path, out T raw) ? InternalAddOption(path, raw, false) : null;
 
-    private sealed class ConfigurationOption<T>(string path, T value) : IConfigurationOption<T>
+    private sealed class ConfigurationOption<T>(string path, T optionValue) : IConfigurationOption<T>
     {
         public string Path => path;
 
@@ -92,14 +92,15 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
 
         public T Value
         {
-            get;
+
+            get => optionValue;
             set
             {
-                if(EqualityComparer<T>.Default.Equals(field, value)) return;
-                field = value;
+                if(EqualityComparer<T>.Default.Equals(optionValue, value)) return;
+                optionValue = value;
                 MarkAsDirty();
             }
-        } = value;
+        }
 
         object IConfigurationOption.Value => Value;
 
