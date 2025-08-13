@@ -1,6 +1,5 @@
 ﻿using SC.Abstraction;
 using SC.Extensions;
-using System;
 using System.Threading.Tasks;
 
 namespace SC.Tests;

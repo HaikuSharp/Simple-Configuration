@@ -2,7 +2,6 @@
 using Newtonsoft.Json.Linq;
 using SC.Abstraction;
 using Sugar.Object.Extensions;
-using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -21,7 +20,7 @@ public class JsonFileConfigurationSource(string filePath) : ConfigurationSourceB
         public bool TryGetRaw<T>(string path, out T rawValue)
         {
             var token = InternalGetRawJsonValue(path);
-            
+
             if(token is not null)
             {
                 rawValue = token.ToObject<T>();
@@ -100,11 +99,7 @@ public class JsonFileConfigurationSource(string filePath) : ConfigurationSourceB
 
         public async Task LoadAsync()
         {
-            if(!File.Exists(filePath))
-            {
-                m_Source = new JObject();
-                return;
-            }
+            if(!File.Exists(filePath)) throw new FileNotFoundException(filePath);
 
             using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
 

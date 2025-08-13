@@ -11,7 +11,7 @@ public sealed class PathEnumeratorTest
     {
         int count = 0;
 
-        foreach(var pathPart in new ConfigurationPathEnumerator("SomeSection:SomeValue", ":"))
+        foreach(string pathPart in new ConfigurationPathEnumerator("SomeSection:SomeValue", ":"))
         {
             Console.WriteLine(pathPart);
             count++;
