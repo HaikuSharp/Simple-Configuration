@@ -11,8 +11,6 @@ public interface IConfigurationOption
 {
     string Path { get; }
 
-    int Version { get; }
-
     Type ValueType { get; }
 
     object Value { get; }

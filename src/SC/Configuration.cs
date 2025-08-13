@@ -21,7 +21,7 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
 
     public IConfigurationOption<T> GetOption<T>(string path) => m_Options.TryGetValue(path, out var loadedOption) ? loadedOption as IConfigurationOption<T> : InternalVerifyAndAddRawOption<T>(path);
 
-    public IConfigurationOption<T> AddOption<T>(string path, T value) => InternalAddOption(path, value, !valueSource.HasRaw(path));
+    public IConfigurationOption<T> AddOption<T>(string path, T value) => InternalAddOption(path, value);
 
     public void RemoveOption(string path)
     {
@@ -71,77 +71,35 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
         }
     }
 
-    private ConfigurationOption<T> InternalAddOption<T>(string path, T value, bool isDirty)
+    private ConfigurationOption<T> InternalAddOption<T>(string path, T value)
     {
-        ConfigurationOption<T> option = ConfigurationOption<T>.Create(path, value, isDirty);
+        ConfigurationOption<T> option = new(path, value);
         m_Options.Add(path, option);
         return option;
     }
 
     private ConfigurationOption<T> InternalVerifyAndAddRawOption<T>(string path) => !LoadedOptions.Any(o => path.StartsWith(o.Path)) ? InternalAddRawOption<T>(path) : throw new InvalidOperationException();
 
-    private ConfigurationOption<T> InternalAddRawOption<T>(string path) => valueSource.TryGetRaw(path, out T raw) ? InternalAddOption(path, raw, false) : null;
+    private ConfigurationOption<T> InternalAddRawOption<T>(string path) => valueSource.TryGetRaw(path, out T raw) ? InternalAddOption(path, raw) : null;
 
     private sealed class ConfigurationOption<T>(string path, T optionValue) : IConfigurationOption<T>
     {
         public string Path => path;
 
-        public int Version { get; private set; }
-
         public Type ValueType => typeof(T);
 
-        public T Value
-        {
-
-            get => optionValue;
-            set
-            {
-                if(EqualityComparer<T>.Default.Equals(optionValue, value)) return;
-                optionValue = value;
-                MarkAsDirty();
-            }
-        }
+        public T Value { get; set; } = optionValue;
 
         object IConfigurationOption.Value => Value;
 
-        internal static ConfigurationOption<T> Create(string path, T value, bool isDirty)
-        {
-            ConfigurationOption<T> option = new(path, value);
-            if(isDirty) option.Version++;
-            return option;
-        }
-
-        public void Save(IConfigurationValueSource valueSource)
-        {
-            if(!IsDirty()) return;
-            valueSource.SetRaw(Path, Value);
-            Reset();
-        }
+        public void Save(IConfigurationValueSource valueSource) => valueSource.SetRaw(Path, Value);
 
         public void Load(IConfigurationValueSource valueSource)
         {
-            if(!valueSource.TryGetRaw<T>(Path, out var value))
-            {
-                MarkAsDirtyIfNeeded();
-                return;
-            }
-
+            if(!valueSource.TryGetRaw<T>(Path, out var value)) return;
             Value = value;
-            Reset();
         }
 
         public override string ToString() => $"({Path}, {Value})";
-
-        private bool IsDirty() => Version is not 0;
-
-        private void MarkAsDirty() => Version++;
-
-        private void MarkAsDirtyIfNeeded()
-        {
-            if(IsDirty()) return;
-            MarkAsDirty();
-        }
-
-        private void Reset() => Version = 0;
     }
 }
