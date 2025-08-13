@@ -39,6 +39,8 @@ public class JsonFileConfigurationSource(string filePath) : ConfigurationSourceB
 
         public void SetRaw<T>(string path, T rawValue) => InternalGetOrCreateRawJsonValue(path).Replace(JToken.FromObject(rawValue));
 
+        public void RemoveRaw(string path) => InternalGetRawJsonValue(path)?.Remove();
+
         private JToken InternalGetOrCreateRawJsonValue(string path)
         {
             var currentToken = m_Source;

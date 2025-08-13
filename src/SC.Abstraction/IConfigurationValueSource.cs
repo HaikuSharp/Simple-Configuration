@@ -12,6 +12,8 @@ public interface IConfigurationValueSource
 
     void SetRaw<T>(string path, T raw);
 
+    void RemoveRaw(string path);
+
     void Save();
 
     void Load();

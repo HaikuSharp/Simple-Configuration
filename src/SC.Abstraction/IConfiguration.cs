@@ -17,6 +17,8 @@ public interface IConfiguration
 
     IConfigurationOption<T> AddOption<T>(string path, T value);
 
+    void RemoveOption(string path);
+
     void Save(string path);
 
     void Load(string path);

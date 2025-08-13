@@ -22,6 +22,8 @@ public class ConfigurationRoot(string name, IConfigurationSettings settings) : I
 
     public IConfigurationOption<T> AddOption<T>(string path, T value) => InternalGetConfiguration(path, out string optionPath)?.AddOption(optionPath, value);
 
+    public void RemoveOption(string path) => InternalGetConfiguration(path, out string optionPath)?.RemoveOption(optionPath);
+
     public bool HasConfiguration(string name) => m_Configurations.ContainsKey(name);
 
     public IConfiguration GetConfiguration(string name) => m_Configurations.TryGetValue(name, out var configuration) ? configuration : null;

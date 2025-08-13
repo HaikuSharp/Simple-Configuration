@@ -1,4 +1,5 @@
 ﻿using SC.Abstraction;
+using Sugar.Object.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,12 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
     public IConfigurationOption<T> GetOption<T>(string path) => m_Options.TryGetValue(path, out var loadedOption) ? loadedOption as IConfigurationOption<T> : InternalVerifyAndAddRawOption<T>(path);
 
     public IConfigurationOption<T> AddOption<T>(string path, T value) => InternalAddOption(path, value, !valueSource.HasRaw(path));
+
+    public void RemoveOption(string path)
+    {
+        m_Options.Remove(path).Forget();
+        valueSource.RemoveRaw(path);
+    }
 
     public void Save(string path)
     {

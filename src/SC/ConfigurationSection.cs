@@ -22,6 +22,8 @@ public class ConfigurationSection(IConfiguration configuration, string path) : I
 
     public IConfigurationOption<T> AddOption<T>(string path, T value) => configuration.AddOption(GetAbsolutePath(path), value);
 
+    public void RemoveOption(string path) => configuration.RemoveOption(GetAbsolutePath(path));
+
     public string GetAbsolutePath(string path) => Settings.CombinePaths(Path, path);
 
     public void Save(string path) => configuration.Save(GetAbsolutePath(path));
