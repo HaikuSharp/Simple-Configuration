@@ -13,7 +13,13 @@ public static class ConfigurationExtensions
         return option is not null;
     }
 
-    public static bool TryGetValue<T>(this IConfiguration configuration, string path, out T value)
+    public static bool TryGetOption<T>(this IReadOnlyConfiguration configuration, string path, out IReadOnlyConfigurationOption<T> option)
+    {
+        option = configuration.GetOption<T>(path);
+        return option is not null;
+    }
+
+    public static bool TryGetValue<T>(this IReadOnlyConfiguration configuration, string path, out T value)
     {
         if(configuration.TryGetOption<T>(path, out var option))
         {
@@ -25,7 +31,7 @@ public static class ConfigurationExtensions
         return false;
     }
 
-    public static T GetValue<T>(this IConfiguration configuration, string path) => configuration.TryGetOption<T>(path, out var option) ? option.Value : default;
+    public static T GetValue<T>(this IReadOnlyConfiguration configuration, string path) => configuration.TryGetOption<T>(path, out var option) ? option.Value : default;
 
     public static void SetValue<T>(this IConfiguration configuration, string path, T value)
     {

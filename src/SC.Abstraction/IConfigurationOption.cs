@@ -1,19 +1,13 @@
-﻿using System;
+﻿namespace SC.Abstraction;
 
-namespace SC.Abstraction;
-
-public interface IConfigurationOption<T> : IConfigurationOption
+public interface IConfigurationOption<T> : IConfigurationOption, IReadOnlyConfigurationOption<T>
 {
     new T Value { get; set; }
 }
 
-public interface IConfigurationOption
+public interface IConfigurationOption : IReadOnlyConfigurationOption
 {
-    string Path { get; }
-
-    Type ValueType { get; }
-
-    object Value { get; }
+    new object Value { get; set; }
 
     void Save(IConfigurationValueSource valueSource);
 

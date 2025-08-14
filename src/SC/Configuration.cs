@@ -17,6 +17,8 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
 
     public IEnumerable<IConfigurationOption> LoadedOptions => m_Options.Values;
 
+    IEnumerable<IReadOnlyConfigurationOption> IReadOnlyConfiguration.LoadedOptions => LoadedOptions;
+
     public bool HasOption(string path) => m_Options.ContainsKey(path) || valueSource.HasRaw(path);
 
     public IConfigurationOption<T> GetOption<T>(string path) => m_Options.TryGetValue(path, out var loadedOption) ? loadedOption as IConfigurationOption<T> : InternalVerifyAndAddRawOption<T>(path);
@@ -82,6 +84,8 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
 
     private ConfigurationOption<T> InternalAddRawOption<T>(string path) => valueSource.TryGetRaw(path, out T raw) ? InternalAddOption(path, raw) : null;
 
+    IReadOnlyConfigurationOption<T> IReadOnlyConfiguration.GetOption<T>(string path) => GetOption<T>(path);
+
     private sealed class ConfigurationOption<T>(string path, T optionValue) : IConfigurationOption<T>
     {
         public string Path => path;
@@ -90,7 +94,13 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
 
         public T Value { get; set; } = optionValue;
 
-        object IConfigurationOption.Value => Value;
+        object IReadOnlyConfigurationOption.Value => Value;
+
+        object IConfigurationOption.Value
+        {
+            get => Value;
+            set => Value = (T)value;
+        }
 
         public void Save(IConfigurationValueSource valueSource) => valueSource.SetRaw(Path, Value);
 

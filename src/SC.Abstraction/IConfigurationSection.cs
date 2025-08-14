@@ -1,6 +1,3 @@
 ﻿namespace SC.Abstraction;
 
-public interface IConfigurationSection : IConfiguration, IHasConfigurationPath
-{
-    string GetAbsolutePath(string path);
-}
+public interface IConfigurationSection : IConfiguration, IReadOnlyConfigurationSection;

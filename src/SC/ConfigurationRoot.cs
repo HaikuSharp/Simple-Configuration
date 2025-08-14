@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SC;
 
-public class ConfigurationRoot(string name, IConfigurationSettings settings) : IConfigurationRoot
+public sealed class ConfigurationRoot(string name, IConfigurationSettings settings) : IConfigurationRoot
 {
     private readonly Dictionary<string, IConfiguration> m_Configurations = [];
 
@@ -17,6 +17,8 @@ public class ConfigurationRoot(string name, IConfigurationSettings settings) : I
     public IEnumerable<IConfigurationOption> LoadedOptions => m_Configurations.Values.SelectMany(c => c.LoadedOptions);
 
     public IEnumerable<IConfiguration> LoadedConfigurations => m_Configurations.Values;
+
+    IEnumerable<IReadOnlyConfigurationOption> IReadOnlyConfiguration.LoadedOptions => LoadedOptions;
 
     public bool HasOption(string path) => InternalGetConfiguration(path, out string optionPath)?.HasOption(optionPath) ?? false;
 
@@ -97,4 +99,6 @@ public class ConfigurationRoot(string name, IConfigurationSettings settings) : I
 
 #pragma warning restore IDE0057
 #pragma warning restore IDE0079
+
+    IReadOnlyConfigurationOption<T> IReadOnlyConfiguration.GetOption<T>(string path) => GetOption<T>(path);
 }

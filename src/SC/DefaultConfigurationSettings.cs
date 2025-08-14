@@ -3,7 +3,7 @@ using SC.Extensions;
 
 namespace SC;
 
-public class DefaultConfigurationSettings : IConfigurationSettings
+public sealed class DefaultConfigurationSettings : IConfigurationSettings
 {
     public static DefaultConfigurationSettings Default => field ??= new();
 

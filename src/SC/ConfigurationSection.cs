@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SC;
 
-public class ConfigurationSection(IConfiguration configuration, string path) : IConfigurationSection
+public sealed class ConfigurationSection(IConfiguration configuration, string path) : IConfigurationSection
 {
     public string Name { get; } = string.Format(configuration.Settings.SectionNameFormat, configuration.Name, path);
 
@@ -15,6 +15,8 @@ public class ConfigurationSection(IConfiguration configuration, string path) : I
     public IConfigurationSettings Settings => configuration.Settings;
 
     public IEnumerable<IConfigurationOption> LoadedOptions => configuration.LoadedOptions.Where(o => o.Path.StartsWith(Path));
+
+    IEnumerable<IReadOnlyConfigurationOption> IReadOnlyConfiguration.LoadedOptions => LoadedOptions;
 
     public bool HasOption(string path) => configuration.HasOption(GetAbsolutePath(path));
 
@@ -33,4 +35,6 @@ public class ConfigurationSection(IConfiguration configuration, string path) : I
     public async Task SaveAsync(string path) => await configuration.SaveAsync(GetAbsolutePath(path));
 
     public async Task LoadAsync(string path) => await configuration.LoadAsync(GetAbsolutePath(path));
+
+    IReadOnlyConfigurationOption<T> IReadOnlyConfiguration.GetOption<T>(string path) => GetOption<T>(path);
 }

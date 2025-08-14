@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SC;
 
-public class ConfigurationBuilder : IConfigurationBuilder
+public sealed class ConfigurationBuilder : IConfigurationBuilder
 {
     private readonly List<IConfigurationSource> m_Sources = [];
 

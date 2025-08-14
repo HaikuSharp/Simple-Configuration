@@ -3,17 +3,13 @@ using System.Threading.Tasks;
 
 namespace SC.Abstraction;
 
-public interface IConfiguration
+public interface IConfiguration : IReadOnlyConfiguration
 {
-    string Name { get; }
-
-    IConfigurationSettings Settings { get; }
-
-    IEnumerable<IConfigurationOption> LoadedOptions { get; }
+    new IEnumerable<IConfigurationOption> LoadedOptions { get; }
 
     bool HasOption(string path);
 
-    IConfigurationOption<T> GetOption<T>(string path);
+    new IConfigurationOption<T> GetOption<T>(string path);
 
     IConfigurationOption<T> AddOption<T>(string path, T value);
 
