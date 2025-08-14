@@ -16,6 +16,8 @@ public class ConfigurationRoot(string name, IConfigurationSettings settings) : I
 
     public IEnumerable<IConfigurationOption> LoadedOptions => m_Configurations.Values.SelectMany(c => c.LoadedOptions);
 
+    public IEnumerable<IConfiguration> LoadedConfigurations => m_Configurations.Values;
+
     public bool HasOption(string path) => InternalGetConfiguration(path, out string optionPath)?.HasOption(optionPath) ?? false;
 
     public IConfigurationOption<T> GetOption<T>(string path) => InternalGetConfiguration(path, out string optionPath)?.GetOption<T>(optionPath);
