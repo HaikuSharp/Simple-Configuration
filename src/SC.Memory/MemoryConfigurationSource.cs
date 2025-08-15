@@ -8,8 +8,12 @@ using System.Threading.Tasks;
 
 namespace SC.Memory;
 
+/// <summary>
+/// Represents a configuration source that stores values in memory.
+/// </summary>
 public class MemoryConfigurationSource(string name, IDictionary<string, object> source) : ConfigurationSourceBase(name)
 {
+    /// <inheritdoc/>
     protected override IConfigurationValueSource GetValueSource(IConfigurationSettings settings) => new MemoryConfigurationValueSource(source);
 
     private class MemoryConfigurationValueSource(IDictionary<string, object> source) : IConfigurationValueSource
@@ -17,8 +21,10 @@ public class MemoryConfigurationSource(string name, IDictionary<string, object> 
         private readonly IDictionary<string, object> m_Source = source;
         private readonly Dictionary<string, object> m_Values = source.ToDictionary(k => k.Key, k => k.Value);
 
+        /// <inheritdoc/>
         public bool HasRaw(string path) => m_Values.ContainsKey(path);
 
+        /// <inheritdoc/>
         public bool TryGetRaw<T>(string path, out T rawValue)
         {
             if(m_Values.TryGetValue(path, out object value))
@@ -31,10 +37,13 @@ public class MemoryConfigurationSource(string name, IDictionary<string, object> 
             return false;
         }
 
+        /// <inheritdoc/>
         public T GetRaw<T>(string path) => InternalConvertValue<T>(m_Values[path]);
 
+        /// <inheritdoc/>
         public void SetRaw<T>(string path, T rawValue) => m_Values[path] = rawValue;
 
+        /// <inheritdoc/>
         public void RemoveRaw(string path) => m_Values.Remove(path).Forget();
 
         private static T InternalConvertValue<T>(object sourceValue) => (T)InternalConvertValue(sourceValue, typeof(T));
@@ -45,8 +54,10 @@ public class MemoryConfigurationSource(string name, IDictionary<string, object> 
             return converter.CanConvertTo(type) ? converter.ConvertTo(sourceValue, type) : throw new InvalidCastException();
         }
 
+        /// <inheritdoc/>
         public void Save() => CopyValues(m_Source, m_Values);
 
+        /// <inheritdoc/>
         public void Load() => CopyValues(m_Values, m_Source);
 
         private static void CopyValues(IDictionary<string, object> values, IDictionary<string, object> source)
@@ -55,12 +66,14 @@ public class MemoryConfigurationSource(string name, IDictionary<string, object> 
             foreach(var kvp in source) values[kvp.Key] = kvp.Value;
         }
 
+        /// <inheritdoc/>
         public Task SaveAsync()
         {
             Save();
             return Task.CompletedTask;
         }
 
+        /// <inheritdoc/>
         public Task LoadAsync()
         {
             Load();

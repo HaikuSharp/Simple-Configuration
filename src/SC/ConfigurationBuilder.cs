@@ -3,10 +3,12 @@ using System.Collections.Generic;
 
 namespace SC;
 
+/// <inheritdoc cref="IConfigurationBuilder"/>
 public sealed class ConfigurationBuilder : IConfigurationBuilder
 {
     private readonly List<IConfigurationSource> m_Sources = [];
 
+    /// <inheritdoc/>
     public IConfigurationRoot Build(string name, IConfigurationSettings settings)
     {
         ConfigurationRoot root = new(name, settings);
@@ -14,6 +16,7 @@ public sealed class ConfigurationBuilder : IConfigurationBuilder
         return root;
     }
 
+    /// <inheritdoc/>
     public IConfigurationBuilder Append(IConfigurationSource source)
     {
         m_Sources.Add(source);

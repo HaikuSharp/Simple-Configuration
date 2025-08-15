@@ -7,48 +7,61 @@ using System.Threading.Tasks;
 
 namespace SC;
 
+/// <inheritdoc cref="IConfiguration"/>
 public sealed class Configuration(string name, IConfigurationValueSource valueSource, IConfigurationSettings settings) : IConfiguration
 {
     private readonly Dictionary<string, IConfigurationOption> m_Options = new(settings.InitializeCapacity);
 
+    /// <inheritdoc/>
     public string Name => name;
 
+    /// <inheritdoc/>
     public IConfigurationSettings Settings => settings;
 
+    /// <inheritdoc/>
     public IEnumerable<IConfigurationOption> LoadedOptions => m_Options.Values;
 
+    /// <inheritdoc/>
     IEnumerable<IReadOnlyConfigurationOption> IReadOnlyConfiguration.LoadedOptions => LoadedOptions;
 
+    /// <inheritdoc/>
     public bool HasOption(string path) => m_Options.ContainsKey(path) || valueSource.HasRaw(path);
 
+    /// <inheritdoc/>
     public IConfigurationOption<T> GetOption<T>(string path) => m_Options.TryGetValue(path, out var loadedOption) ? loadedOption as IConfigurationOption<T> : InternalVerifyAndAddRawOption<T>(path);
 
+    /// <inheritdoc/>
     public IConfigurationOption<T> AddOption<T>(string path, T value) => InternalAddOption(path, value);
 
+    /// <inheritdoc/>
     public void RemoveOption(string path)
     {
         m_Options.Remove(path).Forget();
         valueSource.RemoveRaw(path);
     }
 
+    /// <inheritdoc/>
     public void Save(string path)
     {
         InternalSaveOptions(path);
         valueSource.Save();
     }
 
+    /// <inheritdoc/>
     public void Load(string path)
     {
         valueSource.Load();
         InternalLoadOptions(path);
     }
 
+    /// <inheritdoc/>
     public async Task SaveAsync(string path)
     {
         InternalSaveOptions(path);
         await valueSource.SaveAsync();
     }
 
+    /// <inheritdoc/>
     public async Task LoadAsync(string path)
     {
         await valueSource.LoadAsync();
@@ -84,6 +97,7 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
 
     private ConfigurationOption<T> InternalAddRawOption<T>(string path) => valueSource.TryGetRaw(path, out T raw) ? InternalAddOption(path, raw) : null;
 
+    /// <inheritdoc/>
     IReadOnlyConfigurationOption<T> IReadOnlyConfiguration.GetOption<T>(string path) => GetOption<T>(path);
 
     private sealed class ConfigurationOption<T>(string path, T optionValue) : IConfigurationOption<T>

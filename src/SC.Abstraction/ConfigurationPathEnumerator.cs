@@ -4,16 +4,22 @@ using System.Collections.Generic;
 
 namespace SC.Abstraction;
 
+/// <summary>
+/// Enumerates through path segments in a configuration path string using a specified separator.
+/// </summary>
 public struct ConfigurationPathEnumerator(string path, string separator) : IEnumerator<string>, IEnumerable<string>
 {
     private readonly string m_Path = !string.IsNullOrWhiteSpace(path) ? path : throw new ArgumentException(null, nameof(path));
     private int m_CurrentPosition = 0;
     private int m_NextSeparator = -1;
 
+    /// <inheritdoc/>
     public string Current { get; private set; } = null;
 
+    /// <inheritdoc/>
     readonly object IEnumerator.Current => Current;
 
+    /// <inheritdoc/>
     public bool MoveNext()
     {
         if(m_CurrentPosition >= m_Path.Length)
@@ -46,6 +52,7 @@ public struct ConfigurationPathEnumerator(string path, string separator) : IEnum
 #pragma warning restore IDE0057
 #pragma warning restore IDE0079
 
+    /// <inheritdoc/>
     public void Reset()
     {
         m_CurrentPosition = 0;
@@ -53,11 +60,15 @@ public struct ConfigurationPathEnumerator(string path, string separator) : IEnum
         Current = null;
     }
 
+    /// <inheritdoc/>
     public readonly void Dispose() { }
 
+    /// <inheritdoc/>
     public readonly ConfigurationPathEnumerator GetEnumerator() => this;
 
+    /// <inheritdoc/>
     readonly IEnumerator<string> IEnumerable<string>.GetEnumerator() => GetEnumerator();
 
+    /// <inheritdoc/>
     readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

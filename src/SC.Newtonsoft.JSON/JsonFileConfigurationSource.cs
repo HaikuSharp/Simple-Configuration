@@ -7,16 +7,22 @@ using System.Threading.Tasks;
 
 namespace SC.Newtonsoft.JSON;
 
+/// <summary>
+/// Represents a configuration source that loads from and saves to JSON files.
+/// </summary>
 public class JsonFileConfigurationSource(string filePath) : ConfigurationSourceBase(Path.GetFileNameWithoutExtension(filePath))
 {
+    /// <inheritdoc/>
     protected override IConfigurationValueSource GetValueSource(IConfigurationSettings settings) => new JsonFileConfigurationValueSource(filePath, settings);
 
     private class JsonFileConfigurationValueSource(string filePath, IConfigurationSettings settings) : IConfigurationValueSource
     {
         private JToken m_Source;
 
+        /// <inheritdoc/>
         public bool HasRaw(string path) => InternalGetRawJsonValue(path) is not null;
 
+        /// <inheritdoc/>
         public bool TryGetRaw<T>(string path, out T rawValue)
         {
             var token = InternalGetRawJsonValue(path);
@@ -31,14 +37,17 @@ public class JsonFileConfigurationSource(string filePath) : ConfigurationSourceB
             return false;
         }
 
+        /// <inheritdoc/>
         public T GetRaw<T>(string path)
         {
             var token = InternalGetRawJsonValue(path);
             return token is not null ? token.ToObject<T>() : default;
         }
 
+        /// <inheritdoc/>
         public void SetRaw<T>(string path, T rawValue) => InternalGetOrCreateRawJsonValue(path).Replace(JToken.FromObject(rawValue));
 
+        /// <inheritdoc/>
         public void RemoveRaw(string path) => InternalGetRawJsonValue(path)?.Remove();
 
         private JToken InternalGetOrCreateRawJsonValue(string path)
@@ -73,6 +82,7 @@ public class JsonFileConfigurationSource(string filePath) : ConfigurationSourceB
 
         private ConfigurationPathEnumerator InternalGetPathEnumerator(string path) => new(path, settings.Separator);
 
+        /// <inheritdoc/>
         public void Load()
         {
             if(!File.Exists(filePath)) throw new FileNotFoundException(filePath);
@@ -82,6 +92,7 @@ public class JsonFileConfigurationSource(string filePath) : ConfigurationSourceB
             m_Source = JToken.Load(jsonReader);
         }
 
+        /// <inheritdoc/>
         public void Save()
         {
             if(m_Source == null) return;
@@ -99,6 +110,7 @@ public class JsonFileConfigurationSource(string filePath) : ConfigurationSourceB
             m_Source.WriteTo(jsonWriter);
         }
 
+        /// <inheritdoc/>
         public async Task LoadAsync()
         {
             if(!File.Exists(filePath)) throw new FileNotFoundException(filePath);
@@ -110,6 +122,7 @@ public class JsonFileConfigurationSource(string filePath) : ConfigurationSourceB
             m_Source = await JToken.LoadAsync(jsonReader).ConfigureAwait(false);
         }
 
+        /// <inheritdoc/>
         public async Task SaveAsync()
         {
             if(m_Source == null) return;
