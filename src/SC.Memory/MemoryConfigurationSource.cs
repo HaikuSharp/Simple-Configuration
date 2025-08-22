@@ -25,6 +25,9 @@ public class MemoryConfigurationSource(string name, IDictionary<string, object> 
         public bool HasRaw(string path) => m_Values.ContainsKey(path);
 
         /// <inheritdoc/>
+        public IEnumerable<string> GetRawsNames(string path) => m_Values.Keys.Where(p => p.StartsWith(path));
+
+        /// <inheritdoc/>
         public bool TryGetRaw<T>(string path, out T rawValue)
         {
             if(m_Values.TryGetValue(path, out object value))

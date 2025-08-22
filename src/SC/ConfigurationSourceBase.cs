@@ -8,8 +8,7 @@ namespace SC;
 public abstract class ConfigurationSourceBase(string name) : IConfigurationSource
 {
     /// <inheritdoc/>
-    public IConfiguration CreateConfiguration(IConfigurationSettings settings)
-        => new Configuration(name, GetValueSource(settings), settings);
+    public IConfiguration CreateConfiguration(IConfigurationSettings settings) => new Configuration(name, GetValueSource(settings), settings);
 
     /// <summary>
     /// Gets the value source for the configuration.

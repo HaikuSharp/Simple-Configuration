@@ -1,5 +1,6 @@
 ﻿using SC.Abstraction;
 using SC.Extensions;
+using System;
 using System.Threading.Tasks;
 
 namespace SC.Tests;
@@ -7,6 +8,14 @@ namespace SC.Tests;
 [TestClass]
 public abstract class ConfigurationTestBase
 {
+    [TestMethod]
+    public void NamesTest()
+    {
+        var configuration = GetConfiguration();
+        LoadTest(configuration);
+        foreach(var name in configuration.GetOptionsNames()) Console.WriteLine(name);
+    }
+
     [TestMethod]
     public void OptionTest()
     {

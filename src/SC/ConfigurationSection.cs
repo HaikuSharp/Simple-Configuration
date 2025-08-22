@@ -28,6 +28,9 @@ public sealed class ConfigurationSection(IConfiguration configuration, string pa
     public bool HasOption(string path) => configuration.HasOption(GetAbsolutePath(path));
 
     /// <inheritdoc/>
+    public IEnumerable<string> GetOptionsNames(string path) => throw new System.NotImplementedException();
+
+    /// <inheritdoc/>
     public IConfigurationOption<T> GetOption<T>(string path) => configuration.GetOption<T>(GetAbsolutePath(path));
 
     /// <inheritdoc/>

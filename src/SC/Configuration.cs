@@ -28,6 +28,9 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
     public bool HasOption(string path) => m_Options.ContainsKey(path) || valueSource.HasRaw(path);
 
     /// <inheritdoc/>
+    public IEnumerable<string> GetOptionsNames(string path) => InternalGetLoadedOptionsNames(path).Concat(valueSource.GetRawsNames(path)).Distinct();
+
+    /// <inheritdoc/>
     public IConfigurationOption<T> GetOption<T>(string path) => m_Options.TryGetValue(path, out var loadedOption) ? loadedOption as IConfigurationOption<T> : InternalVerifyAndAddRawOption<T>(path);
 
     /// <inheritdoc/>
@@ -96,6 +99,8 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
     private ConfigurationOption<T> InternalVerifyAndAddRawOption<T>(string path) => !LoadedOptions.Any(o => path.StartsWith(o.Path)) ? InternalAddRawOption<T>(path) : throw new InvalidOperationException();
 
     private ConfigurationOption<T> InternalAddRawOption<T>(string path) => valueSource.TryGetRaw(path, out T raw) ? InternalAddOption(path, raw) : null;
+
+    private IEnumerable<string> InternalGetLoadedOptionsNames(string path) => string.IsNullOrEmpty(path) ? m_Options.Keys : m_Options.Keys.Where(k => k.StartsWith(path));
 
     /// <inheritdoc/>
     IReadOnlyConfigurationOption<T> IReadOnlyConfiguration.GetOption<T>(string path) => GetOption<T>(path);

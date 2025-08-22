@@ -1,5 +1,6 @@
 ﻿using SC.Abstraction;
 using SC.Extensions;
+using SR.Abstraction;
 
 namespace SC.SR.Extensions;
 
@@ -8,6 +9,16 @@ namespace SC.SR.Extensions;
 /// </summary>
 public static class ConfigurationExtensions
 {
+    /// <summary>
+    /// Gets an existing configuration option or adds a new one with the default value from the getter.
+    /// </summary>
+    /// <typeparam name="T">The type of the option value.</typeparam>
+    /// <param name="configuration">The configuration instance.</param>
+    /// <param name="path">The path of the option.</param>
+    /// <param name="defaultValueGetter">The getter that provides the default value if the option doesn't exist.</param>
+    /// <returns>The existing or newly created configuration option.</returns>
+    public static IConfigurationOption<T> GetOrAddOption<T>(this IConfiguration configuration, string path, IGetter<T> defaultValueGetter) => configuration.TryGetOption<T>(path, out var option) ? option : configuration.AddOption(path, defaultValueGetter.Get());
+    
     /// <summary>
     /// Attempts to get a value getter for the specified configuration option.
     /// </summary>

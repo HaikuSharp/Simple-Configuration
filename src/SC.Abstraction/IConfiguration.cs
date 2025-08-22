@@ -23,6 +23,18 @@ public interface IConfiguration : IReadOnlyConfiguration
     bool HasOption(string path);
 
     /// <summary>
+    /// Retrieves the names of all configuration options located at the specified path.
+    /// This method is useful for discovering available configuration options within
+    /// a specific configuration section or hierarchy level.
+    /// </summary>
+    /// <param name="path">The path to search for configuration options.</param>
+    /// <returns>
+    /// An <see cref="IEnumerable{String}"/> containing the names of all configuration options
+    /// found at the specified path. Returns an empty collection if no options are found.
+    /// </returns>
+    IEnumerable<string> GetOptionsNames(string path);
+
+    /// <summary>
     /// Gets the configuration option with the specified path and type.
     /// </summary>
     /// <typeparam name="T">The type of the option value.</typeparam>

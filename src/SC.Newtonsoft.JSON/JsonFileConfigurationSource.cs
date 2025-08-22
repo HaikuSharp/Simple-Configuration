@@ -2,7 +2,9 @@
 using Newtonsoft.Json.Linq;
 using SC.Abstraction;
 using Sugar.Object.Extensions;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SC.Newtonsoft.JSON;
@@ -21,6 +23,9 @@ public class JsonFileConfigurationSource(string filePath) : ConfigurationSourceB
 
         /// <inheritdoc/>
         public bool HasRaw(string path) => InternalGetRawJsonValue(path) is not null;
+
+        /// <inheritdoc/>
+        public IEnumerable<string> GetRawsNames(string path) => InternalGetRawJsonValue(path)?.Children().OfType<JProperty>().Select(p => p.Name) ?? [];
 
         /// <inheritdoc/>
         public bool TryGetRaw<T>(string path, out T rawValue)

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SC.Abstraction;
 
@@ -15,6 +16,18 @@ public interface IConfigurationValueSource
     /// <c>true</c> if the source contains a value at the specified path; otherwise, <c>false</c>.
     /// </returns>
     bool HasRaw(string path);
+
+    /// <summary>
+    /// Retrieves the names of all raw value entries located at the specified path.
+    /// This method is typically used for exploring hierarchical configuration structures
+    /// and discovering available configuration keys within a given section.
+    /// </summary>
+    /// <param name="path">The path to search for raw value entries.</param>
+    /// <returns>
+    /// An <see cref="IEnumerable{String}"/> containing the names of all raw value entries
+    /// found at the specified path. Returns an empty collection if no entries are found.
+    /// </returns>
+    IEnumerable<string> GetRawsNames(string path);
 
     /// <summary>
     /// Attempts to get the raw value at the specified path.

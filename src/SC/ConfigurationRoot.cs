@@ -30,6 +30,9 @@ public sealed class ConfigurationRoot(string name, IConfigurationSettings settin
     public bool HasOption(string path) => InternalGetConfiguration(path, out string optionPath)?.HasOption(optionPath) ?? false;
 
     /// <inheritdoc/>
+    public IEnumerable<string> GetOptionsNames(string path) => InternalGetConfiguration(path, out string optionPath)?.GetOptionsNames(optionPath) ?? [];
+
+    /// <inheritdoc/>
     public IConfigurationOption<T> GetOption<T>(string path) => InternalGetConfiguration(path, out string optionPath)?.GetOption<T>(optionPath);
 
     /// <inheritdoc/>

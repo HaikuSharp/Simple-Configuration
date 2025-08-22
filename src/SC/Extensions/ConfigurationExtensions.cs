@@ -1,4 +1,6 @@
 ﻿using SC.Abstraction;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SC.Extensions;
@@ -16,6 +18,48 @@ public static class ConfigurationExtensions
     /// <returns>The configuration section.</returns>
     public static IConfigurationSection GetSection(this IConfiguration configuration, string path) => new ConfigurationSection(configuration, path);
 
+    /// <summary>
+    /// Retrieves the names of all configuration options at the root level of the configuration.
+    /// This method provides a convenient way to discover all top-level configuration options
+    /// without specifying a path.
+    /// </summary>
+    /// <param name="configuration">The configuration to retrieve option names from.</param>
+    /// <returns>
+    /// An <see cref="IEnumerable{String}"/> containing the names of all configuration options
+    /// at the root level. Returns an empty collection if no options are found.
+    /// </returns>
+    public static IEnumerable<string> GetOptionsNames(this IConfiguration configuration) => configuration.GetOptionsNames(null);
+
+    /// <summary>
+    /// Gets an existing configuration option or adds a new one with the specified default value if it doesn't exist.
+    /// </summary>
+    /// <typeparam name="T">The type of the option value.</typeparam>
+    /// <param name="configuration">The configuration to get or add the option to.</param>
+    /// <param name="path">The path of the option.</param>
+    /// <param name="defaultValueOption">The default option to add if the option doesn't exist.</param>
+    /// <returns>The existing option if found; otherwise, the newly added option.</returns>
+    public static IConfigurationOption<T> GetOrAddOption<T>(this IConfiguration configuration, string path, IConfigurationOption<T> defaultValueOption) => configuration.TryGetOption<T>(path, out var option) ? option : configuration.AddOption(path, defaultValueOption.Value);
+
+    /// <summary>
+    /// Gets an existing configuration option or adds a new one using a factory function to provide the default value if it doesn't exist.
+    /// </summary>
+    /// <typeparam name="T">The type of the option value.</typeparam>
+    /// <param name="configuration">The configuration to get or add the option to.</param>
+    /// <param name="path">The path of the option.</param>
+    /// <param name="defaultValueFunc">The factory function that provides the default value to add if the option doesn't exist.</param>
+    /// <returns>The existing option if found; otherwise, the newly added option.</returns>
+    public static IConfigurationOption<T> GetOrAddOption<T>(this IConfiguration configuration, string path, Func<T> defaultValueFunc) => configuration.TryGetOption<T>(path, out var option) ? option : configuration.AddOption(path, defaultValueFunc());
+
+    /// <summary>
+    /// Gets an existing configuration option or adds a new one with the specified default value if it doesn't exist.
+    /// </summary>
+    /// <typeparam name="T">The type of the option value.</typeparam>
+    /// <param name="configuration">The configuration to get or add the option to.</param>
+    /// <param name="path">The path of the option.</param>
+    /// <param name="defaultValue">The default value to add if the option doesn't exist.</param>
+    /// <returns>The existing option if found; otherwise, the newly added option.</returns>
+    public static IConfigurationOption<T> GetOrAddOption<T>(this IConfiguration configuration, string path, T defaultValue) => configuration.TryGetOption<T>(path, out var option) ? option : configuration.AddOption(path, defaultValue);
+    
     /// <summary>
     /// Attempts to get a configuration option with the specified path and type.
     /// </summary>
