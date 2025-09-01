@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SC.Abstraction;
-using Sugar.Object.Extensions;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -104,7 +103,7 @@ public class JsonFileConfigurationSource(string filePath) : ConfigurationSourceB
 
             string directory = Path.GetDirectoryName(filePath);
 
-            if(!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) Directory.CreateDirectory(directory).Forget();
+            if(!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) _ = Directory.CreateDirectory(directory);
 
             using StreamWriter streamWriter = new(filePath);
             using JsonTextWriter jsonWriter = new(streamWriter)

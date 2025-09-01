@@ -1,5 +1,4 @@
 ﻿using SC.Abstraction;
-using Sugar.Object.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -51,7 +50,7 @@ public sealed class ConfigurationRoot(string name, IConfigurationSettings settin
     public void AddConfiguration(IConfiguration configuration) => m_Configurations.Add(configuration.Name, configuration);
 
     /// <inheritdoc/>
-    public void RemoveConfiguration(string name) => m_Configurations.Remove(name).Forget();
+    public void RemoveConfiguration(string name) => _ = m_Configurations.Remove(name);
 
     /// <inheritdoc/>
     public void Save(string path)

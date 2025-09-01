@@ -1,5 +1,4 @@
 ﻿using SC.Abstraction;
-using Sugar.Object.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +38,7 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
     /// <inheritdoc/>
     public void RemoveOption(string path)
     {
-        m_Options.Remove(path).Forget();
+        _ = m_Options.Remove(path);
         valueSource.RemoveRaw(path);
     }
 

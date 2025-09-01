@@ -1,5 +1,4 @@
 ﻿using SC.Abstraction;
-using Sugar.Object.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -47,7 +46,7 @@ public class MemoryConfigurationSource(string name, IDictionary<string, object> 
         public void SetRaw<T>(string path, T rawValue) => m_Values[path] = rawValue;
 
         /// <inheritdoc/>
-        public void RemoveRaw(string path) => m_Values.Remove(path).Forget();
+        public void RemoveRaw(string path) => _ = m_Values.Remove(path);
 
         private static T InternalConvertValue<T>(object sourceValue) => (T)InternalConvertValue(sourceValue, typeof(T));
 
