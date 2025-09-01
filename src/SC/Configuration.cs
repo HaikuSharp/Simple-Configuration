@@ -43,7 +43,14 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
     public IConfigurationOption<T> AddOption<T>(string path, T value) => InternalAddOption(path, value);
 
     /// <inheritdoc/>
-    public void RemoveOption(string path) => _ = m_Options.Remove(path);
+    public void RemoveOption(string path)
+    {
+        _ = m_Options.Remove(path);
+
+        if(!TryGetLoadedSource(out var source)) return;
+
+        source.RemoveRaw(path);
+    }
 
     /// <inheritdoc/>
     public void Save(string path, IConfigurationValueSource source) => InternalSaveOptions(path, source);
