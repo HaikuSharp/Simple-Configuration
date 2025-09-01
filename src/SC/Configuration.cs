@@ -23,6 +23,7 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
     /// <inheritdoc/>
     IEnumerable<IReadOnlyConfigurationOption> IReadOnlyConfiguration.Options => Options;
 
+    /// <inheritdoc/>
     public bool HasLoadedSource => m_LoadedSource is not null;
 
     /// <inheritdoc/>

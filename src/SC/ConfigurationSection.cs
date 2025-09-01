@@ -23,6 +23,7 @@ public sealed class ConfigurationSection(IConfiguration configuration, string pa
     /// <inheritdoc/>
     IEnumerable<IReadOnlyConfigurationOption> IReadOnlyConfiguration.Options => Options;
 
+    /// <inheritdoc/>
     public bool HasLoadedSource => configuration.HasLoadedSource;
 
     /// <inheritdoc/>

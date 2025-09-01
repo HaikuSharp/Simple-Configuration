@@ -12,6 +12,9 @@ public interface IConfiguration : IReadOnlyConfiguration
     /// </summary>
     new IEnumerable<IConfigurationOption> Options { get; }
 
+    /// <summary>
+    /// Gets whether the source has been loaded at least once or not
+    /// </summary>
     bool HasLoadedSource { get; }
 
     /// <summary>
