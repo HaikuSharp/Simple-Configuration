@@ -72,6 +72,8 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
 
     private void InternalLoadOptions(string path, IConfigurationValueSource source)
     {
+        if((source ??= m_LoadedSource) is null) return;
+
         if(string.IsNullOrEmpty(path)) InternalLoadAllOptions(source);
         else InternalLoadOptionsWithPath(path, source);
         m_LoadedSource = source;
