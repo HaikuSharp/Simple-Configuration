@@ -10,5 +10,5 @@ public interface IConfigurationSource
     /// </summary>
     /// <param name="settings">The settings to use for the configuration.</param>
     /// <returns>The created configuration.</returns>
-    IConfiguration CreateConfiguration(IConfigurationSettings settings);
+    IConfigurationRoot CreateConfiguration(IConfigurationSettings settings);
 }
