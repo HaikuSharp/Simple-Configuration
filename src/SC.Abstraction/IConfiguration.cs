@@ -11,7 +11,7 @@ public interface IConfiguration : IReadOnlyConfiguration
     /// <summary>
     /// Gets all loaded configuration options.
     /// </summary>
-    new IEnumerable<IConfigurationOption> LoadedOptions { get; }
+    new IEnumerable<IConfigurationOption> Options { get; }
 
     /// <summary>
     /// Determines whether the configuration contains an option with the specified path.
@@ -61,23 +61,27 @@ public interface IConfiguration : IReadOnlyConfiguration
     /// Saves the configuration segment with the specified path.
     /// </summary>
     /// <param name="path">The segment configuration path where to save.</param>
-    void Save(string path);
+    /// <param name="source">The value source.</param>
+    void Save(string path, IConfigurationValueSource source);
 
     /// <summary>
     /// Loads the configuration segment with the specified path.
     /// </summary>
     /// <param name="path">The configuration section path.</param>
-    void Load(string path);
+    /// <param name="source">The value source.</param>
+    void Load(string path, IConfigurationValueSource source);
 
     /// <summary>
     /// Asynchronously saves the configuration segment with the specified path.
     /// </summary>
     /// <param name="path">The segment configuration path where to save.</param>
-    Task SaveAsync(string path);
+    /// <param name="source">The value source.</param>
+    Task SaveAsync(string path, IConfigurationValueSource source);
 
     /// <summary>
     /// Asynchronously loads the configuration segment with the specified path.
     /// </summary>
     /// <param name="path">The path from which to load the configuration.</param>
-    Task LoadAsync(string path);
+    /// <param name="source">The value source.</param>
+    Task LoadAsync(string path, IConfigurationValueSource source);
 }

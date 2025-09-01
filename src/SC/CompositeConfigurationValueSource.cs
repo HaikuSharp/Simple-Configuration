@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace SC;
 
 /// <summary>
-/// Represents a configuration source that loads from and saves to other sources.
+/// Represents a configuration values source that loads from and saves to other sources.
 /// </summary>
 public class CompositeConfigurationValueSource(IEnumerable<IConfigurationValueSource> sources) : IConfigurationValueSource
 {

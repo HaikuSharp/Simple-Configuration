@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace SC.Newtonsoft.JSON;
 
 /// <summary>
-/// Represents a configuration values source that loads from and saves to JSON files.
+/// Represents a configuration values source that loads from and saves to Json file.
 /// </summary>
 public class JsonFileConfigurationValueSource(string filePath, IConfigurationSettings settings) : IConfigurationValueSource
 {
