@@ -19,10 +19,10 @@ public sealed class ConfigurationSection(IConfiguration configuration, string pa
     public IConfigurationSettings Settings => configuration.Settings;
 
     /// <inheritdoc/>
-    public IEnumerable<IConfigurationOption> Options => configuration.Options.Where(o => o.Path.StartsWith(Path));
+    public IEnumerable<IConfigurationOption> LoadedOptions => configuration.LoadedOptions.Where(o => o.Path.StartsWith(Path));
 
     /// <inheritdoc/>
-    IEnumerable<IReadOnlyConfigurationOption> IReadOnlyConfiguration.Options => Options;
+    IEnumerable<IReadOnlyConfigurationOption> IReadOnlyConfiguration.LoadedOptions => LoadedOptions;
 
     /// <inheritdoc/>
     public bool HasOption(string path) => configuration.HasOption(GetAbsolutePath(path));
@@ -43,16 +43,16 @@ public sealed class ConfigurationSection(IConfiguration configuration, string pa
     public string GetAbsolutePath(string path) => Settings.CombinePaths(Path, path);
 
     /// <inheritdoc/>
-    public void Save(string path, IConfigurationValueSource source) => configuration.Save(GetAbsolutePath(path), source);
+    public void Save(string path) => configuration.Save(GetAbsolutePath(path));
 
     /// <inheritdoc/>
-    public void Load(string path, IConfigurationValueSource source) => configuration.Load(GetAbsolutePath(path), source);
+    public void Load(string path) => configuration.Load(GetAbsolutePath(path));
 
     /// <inheritdoc/>
-    public Task SaveAsync(string path, IConfigurationValueSource source) => configuration.SaveAsync(GetAbsolutePath(path), source);
+    public async Task SaveAsync(string path) => await configuration.SaveAsync(GetAbsolutePath(path));
 
     /// <inheritdoc/>
-    public Task LoadAsync(string path, IConfigurationValueSource source) => configuration.LoadAsync(GetAbsolutePath(path), source);
+    public async Task LoadAsync(string path) => await configuration.LoadAsync(GetAbsolutePath(path));
 
     /// <inheritdoc/>
     IReadOnlyConfigurationOption<T> IReadOnlyConfiguration.GetOption<T>(string path) => GetOption<T>(path);

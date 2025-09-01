@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace SC;
 
 /// <inheritdoc cref="IConfiguration"/>
-public sealed class Configuration(string name, IConfigurationSettings settings) : IConfiguration
+public sealed class Configuration(string name, IConfigurationValueSource valueSource, IConfigurationSettings settings) : IConfiguration
 {
     private readonly Dictionary<string, IConfigurationOption> m_Options = new(settings.InitializeCapacity);
 
@@ -18,19 +18,19 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
     public IConfigurationSettings Settings => settings;
 
     /// <inheritdoc/>
-    public IEnumerable<IConfigurationOption> Options => m_Options.Values;
+    public IEnumerable<IConfigurationOption> LoadedOptions => m_Options.Values;
 
     /// <inheritdoc/>
-    IEnumerable<IReadOnlyConfigurationOption> IReadOnlyConfiguration.Options => Options;
+    IEnumerable<IReadOnlyConfigurationOption> IReadOnlyConfiguration.LoadedOptions => LoadedOptions;
 
     /// <inheritdoc/>
-    public bool HasOption(string path) => m_Options.ContainsKey(path);
+    public bool HasOption(string path) => m_Options.ContainsKey(path) || valueSource.HasRaw(path);
 
     /// <inheritdoc/>
-    public IEnumerable<string> GetOptionsNames(string path) => InternalGetOptionsNames(path);
+    public IEnumerable<string> GetOptionsNames(string path) => InternalGetLoadedOptionsNames(path).Concat(valueSource.GetRawsNames(path)).Distinct();
 
     /// <inheritdoc/>
-    public IConfigurationOption<T> GetOption<T>(string path) => m_Options.TryGetValue(path, out var loadedOption) ? loadedOption as IConfigurationOption<T> : throw new NotImplementedException($"Option {path} not implemented in configuration {Name}.");
+    public IConfigurationOption<T> GetOption<T>(string path) => m_Options.TryGetValue(path, out var loadedOption) ? loadedOption as IConfigurationOption<T> : InternalVerifyAndAddRawOption<T>(path);
 
     /// <inheritdoc/>
     public IConfigurationOption<T> AddOption<T>(string path, T value) => InternalAddOption(path, value);
@@ -39,63 +39,64 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
     public void RemoveOption(string path)
     {
         _ = m_Options.Remove(path);
+        valueSource.RemoveRaw(path);
     }
 
     /// <inheritdoc/>
-    public void Save(string path, IConfigurationValueSource source)
+    public void Save(string path)
     {
-        InternalSaveOptions(path, source);
-        source.Save();
+        InternalSaveOptions(path);
+        valueSource.Save();
     }
 
     /// <inheritdoc/>
-    public void Load(string path, IConfigurationValueSource source)
+    public void Load(string path)
     {
-        source.Load();
-        InternalLoadOptions(path, source);
+        valueSource.Load();
+        InternalLoadOptions(path);
     }
 
     /// <inheritdoc/>
-    public Task SaveAsync(string path, IConfigurationValueSource source)
+    public async Task SaveAsync(string path)
     {
-        InternalSaveOptions(path, source);
-        return source.SaveAsync();
+        InternalSaveOptions(path);
+        await valueSource.SaveAsync();
     }
 
     /// <inheritdoc/>
-    public async Task LoadAsync(string path, IConfigurationValueSource source)
+    public async Task LoadAsync(string path)
     {
-        await source.LoadAsync();
-        InternalLoadOptions(path, source);
+        await valueSource.LoadAsync();
+        InternalLoadOptions(path);
     }
 
-    private void InternalSaveOptions(string path, IConfigurationValueSource source)
+    private void InternalSaveOptions(string path)
     {
         if(string.IsNullOrEmpty(path))
         {
-            foreach(var option in Options) option.Save(source);
+            foreach(var option in LoadedOptions) option.Save(valueSource);
             return;
         }
 
-        foreach(var option in Options)
+        foreach(var option in LoadedOptions)
         {
             if(!option.Path.StartsWith(path)) continue;
-            option.Save(source);
+            option.Save(valueSource);
         }
     }
 
-    private void InternalLoadOptions(string path, IConfigurationValueSource source)
+    private void InternalLoadOptions(string path)
     {
         if(string.IsNullOrEmpty(path))
         {
-            foreach(var option in Options) option.Load(source);
+            foreach(var option in LoadedOptions) option.Load(valueSource);
             return;
         }
 
-        foreach(var option in Options)
+        foreach(var option in LoadedOptions)
         {
             if(!option.Path.StartsWith(path)) continue;
-            option.Load(source);
+            option.Load(valueSource);
         }
     }
 
@@ -106,7 +107,11 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
         return option;
     }
 
-    private IEnumerable<string> InternalGetOptionsNames(string path) => string.IsNullOrEmpty(path) ? m_Options.Keys : m_Options.Keys.Where(k => k.StartsWith(path));
+    private ConfigurationOption<T> InternalVerifyAndAddRawOption<T>(string path) => !LoadedOptions.Any(o => path.StartsWith(o.Path)) ? InternalAddRawOption<T>(path) : throw new InvalidOperationException();
+
+    private ConfigurationOption<T> InternalAddRawOption<T>(string path) => valueSource.TryGetRaw(path, out T raw) ? InternalAddOption(path, raw) : null;
+
+    private IEnumerable<string> InternalGetLoadedOptionsNames(string path) => string.IsNullOrEmpty(path) ? m_Options.Keys : m_Options.Keys.Where(k => k.StartsWith(path));
 
     /// <inheritdoc/>
     IReadOnlyConfigurationOption<T> IReadOnlyConfiguration.GetOption<T>(string path) => GetOption<T>(path);

@@ -20,7 +20,7 @@ public interface IReadOnlyConfiguration
     /// <summary>
     /// Gets all loaded configuration options.
     /// </summary>
-    IEnumerable<IReadOnlyConfigurationOption> Options { get; }
+    IEnumerable<IReadOnlyConfigurationOption> LoadedOptions { get; }
 
     /// <summary>
     /// Gets the read-only configuration option with the specified path and type.
