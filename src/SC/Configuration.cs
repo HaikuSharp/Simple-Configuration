@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace SC;
 
 /// <inheritdoc cref="IConfiguration"/>
-public sealed class Configuration(string name, IConfigurationValueSource valueSource, IConfigurationSettings settings) : IConfiguration
+public sealed class Configuration(string name, IConfigurationValueSource valueSource, IConfigurationSettings settings) : IConfigurationRoot
 {
     private readonly Dictionary<string, IConfigurationOption> m_Options = new(settings.InitializeCapacity);
 
@@ -22,6 +22,13 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
 
     /// <inheritdoc/>
     IEnumerable<IReadOnlyConfigurationOption> IReadOnlyConfiguration.LoadedOptions => LoadedOptions;
+
+    /// <inheritdoc/>
+    public IConfigurationValueSource Source 
+    { 
+        get => valueSource; 
+        set => valueSource = value; 
+    }
 
     /// <inheritdoc/>
     public bool HasOption(string path) => m_Options.ContainsKey(path) || valueSource.HasRaw(path);
