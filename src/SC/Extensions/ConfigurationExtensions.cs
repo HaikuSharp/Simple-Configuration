@@ -130,23 +130,27 @@ public static class ConfigurationExtensions
     /// Saves the configuration to its default path.
     /// </summary>
     /// <param name="configuration">The configuration to save.</param>
-    public static void Save(this IConfiguration configuration) => configuration.Save(null);
+    /// <param name="source">The value source.</param>
+    public static void Save(this IConfiguration configuration, IConfigurationValueSource source) => configuration.Save(null, source);
 
     /// <summary>
     /// Loads the configuration from its default path.
     /// </summary>
     /// <param name="configuration">The configuration to load.</param>
-    public static void Load(this IConfiguration configuration) => configuration.Load(null);
+    /// <param name="source">The value source.</param>
+    public static void Load(this IConfiguration configuration, IConfigurationValueSource source) => configuration.Load(null, source);
 
     /// <summary>
     /// Asynchronously saves the configuration to its default path.
     /// </summary>
     /// <param name="configuration">The configuration to save.</param>
-    public static async Task SaveAsync(this IConfiguration configuration) => await configuration.SaveAsync(null);
+    /// <param name="source">The value source.</param>
+    public static async Task SaveAsync(this IConfiguration configuration, IConfigurationValueSource source) => await configuration.SaveAsync(null, source);
 
     /// <summary>
     /// Asynchronously loads the configuration from its default path.
     /// </summary>
     /// <param name="configuration">The configuration to load.</param>
-    public static async Task LoadAsync(this IConfiguration configuration) => await configuration.LoadAsync(null);
+    /// <param name="source">The value source.</param>
+    public static async Task LoadAsync(this IConfiguration configuration, IConfigurationValueSource source) => await configuration.LoadAsync(null, source);
 }
