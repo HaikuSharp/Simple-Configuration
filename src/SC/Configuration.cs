@@ -50,6 +50,8 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
 
     private void InternalSaveOptions(string path, IConfigurationValueSource source)
     {
+        if((source ??= m_LoadedSource) is null) return;
+
         if(string.IsNullOrEmpty(path)) InternalSaveAllOptions(source);
         else InternalSaveOptionsWithPath(path, source);
     }
