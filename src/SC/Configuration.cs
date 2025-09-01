@@ -72,18 +72,30 @@ public sealed class Configuration(string name, IConfigurationValueSource valueSo
 
     private void InternalSaveOptions(string path)
     {
+        if(string.IsNullOrEmpty(path))
+        {
+            foreach(var option in LoadedOptions) option.Save(valueSource);
+            return;
+        }
+
         foreach(var option in LoadedOptions)
         {
-            if(!option.Path.StartsWith(path)) return;
+            if(!option.Path.StartsWith(path)) continue;
             option.Save(valueSource);
         }
     }
 
     private void InternalLoadOptions(string path)
     {
+        if(string.IsNullOrEmpty(path))
+        {
+            foreach(var option in LoadedOptions) option.Load(valueSource);
+            return;
+        }
+
         foreach(var option in LoadedOptions)
         {
-            if(!option.Path.StartsWith(path)) return;
+            if(!option.Path.StartsWith(path)) continue;
             option.Load(valueSource);
         }
     }

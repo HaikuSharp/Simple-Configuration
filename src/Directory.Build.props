@@ -7,7 +7,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<BuildVersion>1.1.1</BuildVersion>
+		<BuildVersion>1.1.2</BuildVersion>
 		<Version>$(BuildVersion)</Version>
 		<AssemblyVersion>$(BuildVersion)</AssemblyVersion>
 		<FileVersion>$(BuildVersion)</FileVersion>

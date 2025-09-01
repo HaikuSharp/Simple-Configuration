@@ -20,6 +20,8 @@ public class JsonFileConfigurationSource(string filePath) : ConfigurationSourceB
     {
         private JToken m_Source;
 
+        private JToken NotNullSource => m_Source ??= new JObject();
+
         /// <inheritdoc/>
         public bool HasRaw(string path) => InternalGetRawJsonValue(path) is not null;
 
@@ -56,7 +58,7 @@ public class JsonFileConfigurationSource(string filePath) : ConfigurationSourceB
 
         private JToken InternalGetOrCreateRawJsonValue(string path)
         {
-            var currentToken = m_Source;
+            var currentToken = NotNullSource;
 
             if(currentToken is null) return null;
             if(string.IsNullOrWhiteSpace(path)) return currentToken;
@@ -69,7 +71,7 @@ public class JsonFileConfigurationSource(string filePath) : ConfigurationSourceB
 
         private JToken InternalGetRawJsonValue(string path)
         {
-            var currentToken = m_Source;
+            var currentToken = NotNullSource;
 
             if(currentToken is null) return null;
             if(string.IsNullOrWhiteSpace(path)) return currentToken;
@@ -99,7 +101,7 @@ public class JsonFileConfigurationSource(string filePath) : ConfigurationSourceB
         /// <inheritdoc/>
         public void Save()
         {
-            if(m_Source == null) return;
+            var source = NotNullSource;
 
             string directory = Path.GetDirectoryName(filePath);
 
@@ -111,7 +113,7 @@ public class JsonFileConfigurationSource(string filePath) : ConfigurationSourceB
                 Formatting = Formatting.Indented
             };
 
-            m_Source.WriteTo(jsonWriter);
+            source.WriteTo(jsonWriter);
         }
 
         /// <inheritdoc/>
