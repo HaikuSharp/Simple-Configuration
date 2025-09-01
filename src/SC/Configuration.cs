@@ -23,6 +23,8 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
     /// <inheritdoc/>
     IEnumerable<IReadOnlyConfigurationOption> IReadOnlyConfiguration.Options => Options;
 
+    public bool HasLoadedSource => m_LoadedSource is not null;
+
     /// <inheritdoc/>
     public bool HasOption(string path) => m_Options.ContainsKey(path) || (TryGetLoadedSource(out var source) && source.HasRaw(path));
 
@@ -50,7 +52,7 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
 
     private void InternalSaveOptions(string path, IConfigurationValueSource source)
     {
-        if((source ??= m_LoadedSource) is null) return;
+        source = GetSource(source);
 
         if(string.IsNullOrEmpty(path)) InternalSaveAllOptions(source);
         else InternalSaveOptionsWithPath(path, source);
@@ -72,10 +74,11 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
 
     private void InternalLoadOptions(string path, IConfigurationValueSource source)
     {
-        if((source ??= m_LoadedSource) is null) return;
+        source = GetSource(source);
 
         if(string.IsNullOrEmpty(path)) InternalLoadAllOptions(source);
         else InternalLoadOptionsWithPath(path, source);
+
         m_LoadedSource = source;
     }
 
@@ -107,6 +110,8 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
     private bool TryGetLoadedSource(out IConfigurationValueSource source) => (source = m_LoadedSource) is not null;
 
     private IEnumerable<string> InternalGetOptionsNames(string path) => string.IsNullOrEmpty(path) ? m_Options.Keys : m_Options.Keys.Where(k => k.StartsWith(path));
+
+    private IConfigurationValueSource GetSource(IConfigurationValueSource source) => (source ??= m_LoadedSource) is not null ? source : throw new NullReferenceException("The value source cannot be null or not loaded previously.");
 
     /// <inheritdoc/>
     IReadOnlyConfigurationOption<T> IReadOnlyConfiguration.GetOption<T>(string path) => GetOption<T>(path);

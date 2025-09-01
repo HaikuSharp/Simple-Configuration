@@ -122,14 +122,26 @@ public static class ConfigurationExtensions
     }
 
     /// <summary>
-    /// Saves the configuration to its default path.
+    /// Saves the configuration in loaded source with default path.
+    /// </summary>
+    /// <param name="configuration">The configuration to save.</param>
+    public static void Save(this IConfiguration configuration) => configuration.Save(null);
+
+    /// <summary>
+    /// Loads the configuration from loaded source with default path.
+    /// </summary>
+    /// <param name="configuration">The configuration to load.</param>
+    public static void Load(this IConfiguration configuration) => configuration.Load(null);
+
+    /// <summary>
+    /// Saves the configuration with default path.
     /// </summary>
     /// <param name="configuration">The configuration to save.</param>
     /// <param name="source">The value source.</param>
     public static void Save(this IConfiguration configuration, IConfigurationValueSource source) => configuration.Save(null, source);
 
     /// <summary>
-    /// Loads the configuration from its default path.
+    /// Loads the configuration with default path.
     /// </summary>
     /// <param name="configuration">The configuration to load.</param>
     /// <param name="source">The value source.</param>

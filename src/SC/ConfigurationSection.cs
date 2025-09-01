@@ -23,6 +23,8 @@ public sealed class ConfigurationSection(IConfiguration configuration, string pa
     /// <inheritdoc/>
     IEnumerable<IReadOnlyConfigurationOption> IReadOnlyConfiguration.Options => Options;
 
+    public bool HasLoadedSource => configuration.HasLoadedSource;
+
     /// <inheritdoc/>
     public bool HasOption(string path) => configuration.HasOption(GetAbsolutePath(path));
 

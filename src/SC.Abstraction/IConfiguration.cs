@@ -12,6 +12,8 @@ public interface IConfiguration : IReadOnlyConfiguration
     /// </summary>
     new IEnumerable<IConfigurationOption> Options { get; }
 
+    bool HasLoadedSource { get; }
+
     /// <summary>
     /// Determines whether the configuration contains an option with the specified path.
     /// </summary>
