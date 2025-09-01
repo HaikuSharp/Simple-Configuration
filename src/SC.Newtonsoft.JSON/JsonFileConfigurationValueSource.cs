@@ -13,6 +13,7 @@ namespace SC.Newtonsoft.JSON;
 /// </summary>
 public class JsonFileConfigurationValueSource(string filePath, IConfigurationSettings settings) : IConfigurationValueSource
 {
+    private readonly Dictionary<string, JToken> m_TokensCache = [];
     private JToken m_Source;
 
     private JToken NotNullSource => m_Source ??= new JObject();
@@ -46,7 +47,12 @@ public class JsonFileConfigurationValueSource(string filePath, IConfigurationSet
     }
 
     /// <inheritdoc/>
-    public void SetRaw<T>(string path, T rawValue) => InternalGetOrCreateRawJsonValue(path).Replace(JToken.FromObject(rawValue));
+    public void SetRaw<T>(string path, T rawValue)
+    {
+        var token = InternalGetOrCreateRawJsonValue(path);
+        token.Replace(JToken.FromObject(rawValue));
+        m_TokensCache[path] = token;
+    }
 
     /// <inheritdoc/>
     public void RemoveRaw(string path) => InternalGetRawJsonValue(path)?.Remove();
@@ -64,7 +70,9 @@ public class JsonFileConfigurationValueSource(string filePath, IConfigurationSet
         return currentToken;
     }
 
-    private JToken InternalGetRawJsonValue(string path)
+    private JToken InternalGetRawJsonValue(string path) => m_TokensCache.TryGetValue(path, out var token) ? token : (m_TokensCache[path] = FindRawJsonValue(path));
+
+    private JToken FindRawJsonValue(string path)
     {
         var currentToken = NotNullSource;
 
@@ -91,6 +99,7 @@ public class JsonFileConfigurationValueSource(string filePath, IConfigurationSet
         using StreamReader streamReader = new(filePath);
         using JsonTextReader jsonReader = new(streamReader);
         m_Source = JToken.Load(jsonReader);
+        m_TokensCache.Clear();
     }
 
     /// <inheritdoc/>
@@ -121,6 +130,7 @@ public class JsonFileConfigurationValueSource(string filePath, IConfigurationSet
         using StreamReader streamReader = new(fileStream);
         using JsonTextReader jsonReader = new(streamReader);
         m_Source = await JToken.LoadAsync(jsonReader).ConfigureAwait(false);
+        m_TokensCache.Clear();
     }
 
     /// <inheritdoc/>
