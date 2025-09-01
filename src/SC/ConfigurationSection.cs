@@ -28,7 +28,7 @@ public sealed class ConfigurationSection(IConfiguration configuration, string pa
     public bool HasOption(string path) => configuration.HasOption(GetAbsolutePath(path));
 
     /// <inheritdoc/>
-    public IEnumerable<string> GetOptionsNames(string path) => throw new System.NotImplementedException();
+    public IEnumerable<string> GetOptionsNames(string path) => configuration.GetOptionsNames(GetAbsolutePath(path));
 
     /// <inheritdoc/>
     public IConfigurationOption<T> GetOption<T>(string path) => configuration.GetOption<T>(GetAbsolutePath(path));
@@ -47,12 +47,6 @@ public sealed class ConfigurationSection(IConfiguration configuration, string pa
 
     /// <inheritdoc/>
     public void Load(string path, IConfigurationValueSource source) => configuration.Load(GetAbsolutePath(path), source);
-
-    /// <inheritdoc/>
-    public Task SaveAsync(string path, IConfigurationValueSource source) => configuration.SaveAsync(GetAbsolutePath(path), source);
-
-    /// <inheritdoc/>
-    public Task LoadAsync(string path, IConfigurationValueSource source) => configuration.LoadAsync(GetAbsolutePath(path), source);
 
     /// <inheritdoc/>
     IReadOnlyConfigurationOption<T> IReadOnlyConfiguration.GetOption<T>(string path) => GetOption<T>(path);

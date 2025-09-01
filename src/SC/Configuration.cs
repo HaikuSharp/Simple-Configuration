@@ -30,44 +30,19 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
     public IEnumerable<string> GetOptionsNames(string path) => InternalGetOptionsNames(path);
 
     /// <inheritdoc/>
-    public IConfigurationOption<T> GetOption<T>(string path) => m_Options.TryGetValue(path, out var loadedOption) ? loadedOption as IConfigurationOption<T> : throw new NotImplementedException($"Option {path} not implemented in configuration {Name}.");
+    public IConfigurationOption<T> GetOption<T>(string path) => m_Options.TryGetValue(path, out var loadedOption) ? loadedOption as IConfigurationOption<T> : null;
 
     /// <inheritdoc/>
     public IConfigurationOption<T> AddOption<T>(string path, T value) => InternalAddOption(path, value);
 
     /// <inheritdoc/>
-    public void RemoveOption(string path)
-    {
-        _ = m_Options.Remove(path);
-    }
+    public void RemoveOption(string path) => _ = m_Options.Remove(path);
 
     /// <inheritdoc/>
-    public void Save(string path, IConfigurationValueSource source)
-    {
-        InternalSaveOptions(path, source);
-        source.Save();
-    }
+    public void Save(string path, IConfigurationValueSource source) => InternalSaveOptions(path, source);
 
     /// <inheritdoc/>
-    public void Load(string path, IConfigurationValueSource source)
-    {
-        source.Load();
-        InternalLoadOptions(path, source);
-    }
-
-    /// <inheritdoc/>
-    public Task SaveAsync(string path, IConfigurationValueSource source)
-    {
-        InternalSaveOptions(path, source);
-        return source.SaveAsync();
-    }
-
-    /// <inheritdoc/>
-    public async Task LoadAsync(string path, IConfigurationValueSource source)
-    {
-        await source.LoadAsync();
-        InternalLoadOptions(path, source);
-    }
+    public void Load(string path, IConfigurationValueSource source) => InternalLoadOptions(path, source);
 
     private void InternalSaveOptions(string path, IConfigurationValueSource source)
     {

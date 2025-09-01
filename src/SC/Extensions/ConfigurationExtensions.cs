@@ -68,11 +68,7 @@ public static class ConfigurationExtensions
     /// <param name="path">The path of the option.</param>
     /// <param name="option">When this method returns, contains the option if found; otherwise, null.</param>
     /// <returns>true if the option was found; otherwise, false.</returns>
-    public static bool TryGetOption<T>(this IConfiguration configuration, string path, out IConfigurationOption<T> option)
-    {
-        option = configuration.GetOption<T>(path);
-        return option is not null;
-    }
+    public static bool TryGetOption<T>(this IConfiguration configuration, string path, out IConfigurationOption<T> option) => (option = configuration.GetOption<T>(path)) is not null;
 
     /// <summary>
     /// Attempts to get a read-only configuration option with the specified path and type.
@@ -139,18 +135,4 @@ public static class ConfigurationExtensions
     /// <param name="configuration">The configuration to load.</param>
     /// <param name="source">The value source.</param>
     public static void Load(this IConfiguration configuration, IConfigurationValueSource source) => configuration.Load(null, source);
-
-    /// <summary>
-    /// Asynchronously saves the configuration to its default path.
-    /// </summary>
-    /// <param name="configuration">The configuration to save.</param>
-    /// <param name="source">The value source.</param>
-    public static async Task SaveAsync(this IConfiguration configuration, IConfigurationValueSource source) => await configuration.SaveAsync(null, source);
-
-    /// <summary>
-    /// Asynchronously loads the configuration from its default path.
-    /// </summary>
-    /// <param name="configuration">The configuration to load.</param>
-    /// <param name="source">The value source.</param>
-    public static async Task LoadAsync(this IConfiguration configuration, IConfigurationValueSource source) => await configuration.LoadAsync(null, source);
 }

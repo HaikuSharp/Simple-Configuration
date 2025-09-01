@@ -70,18 +70,4 @@ public interface IConfiguration : IReadOnlyConfiguration
     /// <param name="path">The configuration section path.</param>
     /// <param name="source">The value source.</param>
     void Load(string path, IConfigurationValueSource source);
-
-    /// <summary>
-    /// Asynchronously saves the configuration segment with the specified path.
-    /// </summary>
-    /// <param name="path">The segment configuration path where to save.</param>
-    /// <param name="source">The value source.</param>
-    Task SaveAsync(string path, IConfigurationValueSource source);
-
-    /// <summary>
-    /// Asynchronously loads the configuration segment with the specified path.
-    /// </summary>
-    /// <param name="path">The path from which to load the configuration.</param>
-    /// <param name="source">The value source.</param>
-    Task LoadAsync(string path, IConfigurationValueSource source);
 }
