@@ -18,7 +18,7 @@ public static class ConfigurationExtensions
     /// <param name="defaultValueGetter">The getter that provides the default value if the option doesn't exist.</param>
     /// <returns>The existing or newly created configuration option.</returns>
     public static IConfigurationOption<T> GetOrAddOption<T>(this IConfiguration configuration, string path, IGetter<T> defaultValueGetter) => configuration.TryGetOption<T>(path, out var option) ? option : configuration.AddOption(path, defaultValueGetter.Get());
-    
+
     /// <summary>
     /// Attempts to get a value getter for the specified configuration option.
     /// </summary>

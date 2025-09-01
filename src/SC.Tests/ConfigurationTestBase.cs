@@ -13,7 +13,7 @@ public abstract class ConfigurationTestBase
     {
         var configuration = GetConfiguration();
         LoadTest(configuration);
-        foreach(var name in configuration.GetOptionsNames()) Console.WriteLine(name);
+        foreach(string name in configuration.GetOptionsNames()) Console.WriteLine(name);
     }
 
     [TestMethod]

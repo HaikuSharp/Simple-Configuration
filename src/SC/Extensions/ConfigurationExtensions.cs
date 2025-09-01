@@ -59,7 +59,7 @@ public static class ConfigurationExtensions
     /// <param name="defaultValue">The default value to add if the option doesn't exist.</param>
     /// <returns>The existing option if found; otherwise, the newly added option.</returns>
     public static IConfigurationOption<T> GetOrAddOption<T>(this IConfiguration configuration, string path, T defaultValue) => configuration.TryGetOption<T>(path, out var option) ? option : configuration.AddOption(path, defaultValue);
-    
+
     /// <summary>
     /// Attempts to get a configuration option with the specified path and type.
     /// </summary>
