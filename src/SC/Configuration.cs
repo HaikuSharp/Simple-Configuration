@@ -8,6 +8,7 @@ namespace SC;
 /// <inheritdoc cref="IConfiguration"/>
 public sealed class Configuration(string name, IConfigurationSettings settings) : IConfiguration
 {
+    private IConfigurationValueSource m_LoadedSource;
     private readonly Dictionary<string, IConfigurationOption> m_Options = new(settings.InitializeCapacity);
 
     /// <inheritdoc/>
@@ -23,13 +24,17 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
     IEnumerable<IReadOnlyConfigurationOption> IReadOnlyConfiguration.Options => Options;
 
     /// <inheritdoc/>
-    public bool HasOption(string path) => m_Options.ContainsKey(path);
+    public bool HasOption(string path) => m_Options.ContainsKey(path) || (TryGetLoadedSource(out var source) && source.HasRaw(path));
 
     /// <inheritdoc/>
-    public IEnumerable<string> GetOptionsNames(string path) => InternalGetOptionsNames(path);
+    public IEnumerable<string> GetOptionsNames(string path)
+    {
+        var optionsNames = InternalGetOptionsNames(path);
+        return TryGetLoadedSource(out var source) ? optionsNames.Concat(source.GetRawsNames(path)) : optionsNames;
+    }
 
     /// <inheritdoc/>
-    public IConfigurationOption<T> GetOption<T>(string path) => m_Options.TryGetValue(path, out var loadedOption) ? loadedOption as IConfigurationOption<T> : null;
+    public IConfigurationOption<T> GetOption<T>(string path) => m_Options.TryGetValue(path, out var loadedOption) ? loadedOption as IConfigurationOption<T> : InternalVerifyAndAddRawOption<T>(path);
 
     /// <inheritdoc/>
     public IConfigurationOption<T> AddOption<T>(string path, T value) => InternalAddOption(path, value);
@@ -45,12 +50,12 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
 
     private void InternalSaveOptions(string path, IConfigurationValueSource source)
     {
-        if(string.IsNullOrEmpty(path))
-        {
-            foreach(var option in Options) option.Save(source);
-            return;
-        }
+        if(string.IsNullOrEmpty(path)) InternalSaveAllOptions(source);
+        else InternalSaveOptionsWithPath(path, source);
+    }
 
+    private void InternalSaveOptionsWithPath(string path, IConfigurationValueSource source)
+    {
         foreach(var option in Options)
         {
             if(!option.Path.StartsWith(path)) continue;
@@ -58,14 +63,20 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
         }
     }
 
+    private void InternalSaveAllOptions(IConfigurationValueSource source)
+    {
+        foreach(var option in Options) option.Save(source);
+    }
+
     private void InternalLoadOptions(string path, IConfigurationValueSource source)
     {
-        if(string.IsNullOrEmpty(path))
-        {
-            foreach(var option in Options) option.Load(source);
-            return;
-        }
+        if(string.IsNullOrEmpty(path)) InternalLoadAllOptions(source);
+        else InternalLoadOptionsWithPath(path, source);
+        m_LoadedSource = source;
+    }
 
+    private void InternalLoadOptionsWithPath(string path, IConfigurationValueSource source)
+    {
         foreach(var option in Options)
         {
             if(!option.Path.StartsWith(path)) continue;
@@ -73,12 +84,23 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
         }
     }
 
+    private void InternalLoadAllOptions(IConfigurationValueSource source)
+    {
+        foreach(var option in Options) option.Load(source);
+    }
+
+    private ConfigurationOption<T> InternalVerifyAndAddRawOption<T>(string path) => !Options.Any(o => path.StartsWith(o.Path)) ? InternalAddRawOption<T>(path) : throw new InvalidOperationException();
+
+    private ConfigurationOption<T> InternalAddRawOption<T>(string path) => TryGetLoadedSource(out var source) && source.TryGetRaw(path, out T raw) ? InternalAddOption(path, raw) : null;
+
     private ConfigurationOption<T> InternalAddOption<T>(string path, T value)
     {
         ConfigurationOption<T> option = new(path, value);
         m_Options.Add(path, option);
         return option;
     }
+
+    private bool TryGetLoadedSource(out IConfigurationValueSource source) => (source = m_LoadedSource) is not null;
 
     private IEnumerable<string> InternalGetOptionsNames(string path) => string.IsNullOrEmpty(path) ? m_Options.Keys : m_Options.Keys.Where(k => k.StartsWith(path));
 
