@@ -8,9 +8,14 @@ namespace SC;
 /// <summary>
 /// Represents a configuration values source that loads from and saves to other sources.
 /// </summary>
-public class CompositeConfigurationValueSource(IEnumerable<IConfigurationValueSource> sources) : IConfigurationValueSource
+public class CompositeConfigurationValueSource<TSource> : IConfigurationValueSource where TSource : IConfigurationValueSource
 {
-    private readonly List<IConfigurationValueSource> m_Sources = [.. sources];
+    private readonly List<TSource> m_Sources = [];
+
+    /// <summary>
+    /// Gets readonly sources list.
+    /// </summary>
+    public IReadOnlyList<TSource> Sources => m_Sources;
 
     /// <inheritdoc/>
     public T GetRaw<T>(string path)
@@ -61,11 +66,11 @@ public class CompositeConfigurationValueSource(IEnumerable<IConfigurationValueSo
     /// Append new values source.
     /// </summary>
     /// <param name="source">The source to append.</param>
-    public void AppendSource(IConfigurationValueSource source) => m_Sources.Add(source);
+    public void AppendSource(TSource source) => m_Sources.Add(source);
 
     /// <summary>
     /// Remove a values source.
     /// </summary>
     /// <param name="source">The source to remove.</param>
-    public void RemoveSource(IConfigurationValueSource source) => _ = m_Sources.Remove(source);
+    public void RemoveSource(TSource source) => _ = m_Sources.Remove(source);
 }

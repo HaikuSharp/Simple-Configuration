@@ -12,10 +12,13 @@ namespace SC.Newtonsoft.JSON;
 /// <summary>
 /// Represents a configuration values source that loads from and saves to Json file.
 /// </summary>
-public class JsonFileConfigurationValueSource(string filePath, IConfigurationSettings settings) : IConfigurationValueSource
+public class JsonFileConfigurationValueSource(string filePath, IConfigurationSettings settings) : IFileConfigurationValueSource
 {
     private readonly Dictionary<string, JToken> m_TokensCache = [];
     private JToken m_Source;
+
+    /// <inheritdoc/>
+    public string FilePath => filePath;
 
     private JToken NotNullSource => m_Source ??= new JObject();
 
