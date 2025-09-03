@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SC.Abstraction;
+using SC.Extensions;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -89,7 +90,7 @@ public class JsonFileConfigurationValueSource(string filePath, IConfigurationSet
         return currentToken;
     }
 
-    private ConfigurationPathEnumerator InternalGetPathEnumerator(string path) => new(path, settings.Separator);
+    private ConfigurationPathEnumerator InternalGetPathEnumerator(string path) => path.AsPathEnumerator(settings.Separator);
 
     /// <inheritdoc/>
     public void Load()

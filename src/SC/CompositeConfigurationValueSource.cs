@@ -10,53 +10,62 @@ namespace SC;
 /// </summary>
 public class CompositeConfigurationValueSource(IEnumerable<IConfigurationValueSource> sources) : IConfigurationValueSource
 {
-    /// <inheritdoc/>
-    public T GetRaw<T>(string path) => sources.FirstOrDefault(s => s.HasRaw(path)).GetRaw<T>(path);
+    private readonly List<IConfigurationValueSource> m_Sources = [.. sources];
 
     /// <inheritdoc/>
-    public IEnumerable<string> GetRawsNames(string path) => sources.SelectMany(s => s.GetRawsNames(path));
-
-    /// <inheritdoc/>
-    public bool HasRaw(string path) => sources.Any(s => s.HasRaw(path));
-
-    /// <inheritdoc/>
-    public void RemoveRaw(string path)
+    public T GetRaw<T>(string path)
     {
-        foreach(var source in sources) source.RemoveRaw(path);
+        var source = m_Sources.FirstOrDefault(s => s.HasRaw(path));
+        return source is not null ? source.GetRaw<T>(path) : default;
     }
 
     /// <inheritdoc/>
-    public void SetRaw<T>(string path, T raw) => sources.FirstOrDefault(s => s.HasRaw(path)).SetRaw(path, raw);
+    public IEnumerable<string> GetRawsNames(string path) => m_Sources.SelectMany(s => s.GetRawsNames(path));
+
+    /// <inheritdoc/>
+    public bool HasRaw(string path) => m_Sources.Any(s => s.HasRaw(path));
+
+    /// <inheritdoc/>
+    public void RemoveRaw(string path) => m_Sources.ForEach(s => s.RemoveRaw(path));
+
+    /// <inheritdoc/>
+    public void SetRaw<T>(string path, T raw) => m_Sources.FirstOrDefault(s => s.HasRaw(path))?.SetRaw(path, raw);
 
     /// <inheritdoc/>
     public bool TryGetRaw<T>(string path, out T raw)
     {
-        foreach(var source in sources) if(source.TryGetRaw(path, out raw)) return true;
+        foreach(var source in m_Sources) if(source.TryGetRaw(path, out raw)) return true;
         raw = default;
         return false;
     }
 
     /// <inheritdoc/>
-    public void Load()
-    {
-        foreach(var source in sources) source.Load();
-    }
+    public void Load() => m_Sources.ForEach(s => s.Load());
 
     /// <inheritdoc/>
     public async Task LoadAsync()
     {
-        foreach(var source in sources) await source.LoadAsync();
+        foreach(var source in m_Sources) await source.LoadAsync();
     }
 
     /// <inheritdoc/>
-    public void Save()
-    {
-        foreach(var source in sources) source.Save();
-    }
+    public void Save() => m_Sources.ForEach(s => s.Save());
 
     /// <inheritdoc/>
     public async Task SaveAsync()
     {
-        foreach(var source in sources) await source.SaveAsync();
+        foreach(var source in m_Sources) await source.SaveAsync();
     }
+
+    /// <summary>
+    /// Append new values source.
+    /// </summary>
+    /// <param name="source">The source to append.</param>
+    public void AppendSource(IConfigurationValueSource source) => m_Sources.Add(source);
+
+    /// <summary>
+    /// Remove a values source.
+    /// </summary>
+    /// <param name="source">The source to remove.</param>
+    public void RemoveSource(IConfigurationValueSource source) => _ = m_Sources.Remove(source);
 }

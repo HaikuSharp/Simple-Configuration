@@ -1,4 +1,5 @@
 ﻿using SC.Abstraction;
+using SC.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -110,22 +111,43 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
 
     private ConfigurationOption<T> InternalAddOption<T>(string path, T value)
     {
-        ConfigurationOption<T> option = new(path, value);
+        ConfigurationOption<T> option = new(path, GetOptionName(path), value);
         m_Options.Add(path, option);
         return option;
     }
 
+    private string GetOptionName(string path)
+    {
+        int separatorLastIndex = path.LastIndexOf(Settings.Separator);
+
+#pragma warning disable IDE0079
+#pragma warning disable IDE0057
+
+        return separatorLastIndex is -1 ? path : path.Substring(0, separatorLastIndex);
+
+#pragma warning restore IDE0057
+#pragma warning restore IDE0079
+    }
+
     private bool TryGetLoadedSource(out IConfigurationValueSource source) => (source = m_LoadedSource) is not null;
 
-    private IEnumerable<string> InternalGetOptionsNames(string path) => string.IsNullOrEmpty(path) ? m_Options.Keys : m_Options.Keys.Where(k => k.StartsWith(path));
+#pragma warning disable IDE0079
+#pragma warning disable IDE0057
+
+    private IEnumerable<string> InternalGetOptionsNames(string path) => string.IsNullOrEmpty(path) ? m_Options.Keys : m_Options.Keys.Where(k => k.StartsWith(path)).Select(k => k.GetSectionName(path, Settings.Separator));
+
+#pragma warning restore IDE0057
+#pragma warning restore IDE0079
 
     private IConfigurationValueSource GetSource(IConfigurationValueSource source) => (source ??= m_LoadedSource) is not null ? source : throw new NullReferenceException("The value source cannot be null or not loaded previously.");
 
     /// <inheritdoc/>
     IReadOnlyConfigurationOption<T> IReadOnlyConfiguration.GetOption<T>(string path) => GetOption<T>(path);
 
-    private sealed class ConfigurationOption<T>(string path, T optionValue) : IConfigurationOption<T>
+    private sealed class ConfigurationOption<T>(string path, string name, T optionValue) : IConfigurationOption<T>
     {
+        public string Name => name;
+
         public string Path => path;
 
         public Type ValueType => typeof(T);

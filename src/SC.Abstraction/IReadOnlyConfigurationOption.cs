@@ -20,6 +20,11 @@ public interface IReadOnlyConfigurationOption<T> : IReadOnlyConfigurationOption
 public interface IReadOnlyConfigurationOption
 {
     /// <summary>
+    /// Gets the name of the configuration option.
+    /// </summary>
+    string Name { get; }
+
+    /// <summary>
     /// Gets the path of the configuration option.
     /// </summary>
     string Path { get; }

@@ -1,4 +1,5 @@
 ﻿using SC.Abstraction;
+using SC.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,7 +11,7 @@ namespace SC.Memory;
 /// <summary>
 /// Represents a configuration values source that loads from and saves to in-memory collection.
 /// </summary>
-public class MemoryConfigurationValueSource(IDictionary<string, object> source) : IConfigurationValueSource
+public class MemoryConfigurationValueSource(IDictionary<string, object> source, IConfigurationSettings settings) : IConfigurationValueSource
 {
     private readonly IDictionary<string, object> m_Source = source;
     private readonly Dictionary<string, object> m_Values = source.ToDictionary(k => k.Key, k => k.Value);
@@ -19,7 +20,7 @@ public class MemoryConfigurationValueSource(IDictionary<string, object> source) 
     public bool HasRaw(string path) => m_Values.ContainsKey(path);
 
     /// <inheritdoc/>
-    public IEnumerable<string> GetRawsNames(string path) => m_Values.Keys.Where(p => p.StartsWith(path));
+    public IEnumerable<string> GetRawsNames(string path) => m_Values.Keys.Where(k => k.StartsWith(path)).Select(k => k.GetSectionName(path, settings.Separator));
 
     /// <inheritdoc/>
     public bool TryGetRaw<T>(string path, out T rawValue)
