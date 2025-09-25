@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36202.13
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11018.127 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SC.Abstraction", "SC.Abstraction\SC.Abstraction.csproj", "{9929CF01-475C-4ED3-AE6F-9B028B288817}"
 EndProject
@@ -16,8 +16,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SC.Newtonsoft.JSON", "SC.Newtonsoft.JSON\SC.Newtonsoft.JSON.csproj", "{42D985F1-BDD7-4812-89D4-ED43B13B7C4D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SC.Memory", "SC.Memory\SC.Memory.csproj", "{4577269B-120B-4F1E-B5BD-097E0C1311D5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SC.SR", "SC.SR\SC.SR.csproj", "{8503D787-8BDE-4886-8789-EF35DC8491FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +39,6 @@ Global
 		{4577269B-120B-4F1E-B5BD-097E0C1311D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4577269B-120B-4F1E-B5BD-097E0C1311D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4577269B-120B-4F1E-B5BD-097E0C1311D5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8503D787-8BDE-4886-8789-EF35DC8491FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8503D787-8BDE-4886-8789-EF35DC8491FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8503D787-8BDE-4886-8789-EF35DC8491FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8503D787-8BDE-4886-8789-EF35DC8491FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

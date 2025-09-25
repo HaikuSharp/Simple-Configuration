@@ -17,8 +17,5 @@ public sealed class DefaultConfigurationSettings : IConfigurationSettings
     public string Separator => ":";
 
     /// <inheritdoc/>
-    public string SectionNameFormat => this.CombinePaths("{0}", "{1}");
-
-    /// <inheritdoc/>
     public int InitializeCapacity => 32;
 }

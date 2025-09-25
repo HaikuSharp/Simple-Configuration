@@ -3,14 +3,14 @@
 namespace SC.Abstraction;
 
 /// <summary>
-/// Represents a mutable configuration with options that can be loaded, modified and saved.
+/// Represents a configuration with options that can be loaded, modified and saved.
 /// </summary>
-public interface IConfiguration : IReadOnlyConfiguration
+public interface IConfiguration
 {
     /// <summary>
-    /// Gets all loaded configuration options.
+    /// Gets the settings used by the configuration.
     /// </summary>
-    new IEnumerable<IConfigurationOption> Options { get; }
+    IConfigurationSettings Settings { get; }
 
     /// <summary>
     /// Gets whether the source has been loaded at least once or not
@@ -41,19 +41,18 @@ public interface IConfiguration : IReadOnlyConfiguration
     /// <summary>
     /// Gets the configuration option with the specified path and type.
     /// </summary>
-    /// <typeparam name="T">The type of the option value.</typeparam>
+    /// <typeparam name="TOption">The type of the option.</typeparam>
     /// <param name="path">The path of the option to get.</param>
     /// <returns>The configuration option.</returns>
-    new IConfigurationOption<T> GetOption<T>(string path);
+    TOption GetOption<TOption>(string path) where TOption : class, IConfigurationOption, new();
 
     /// <summary>
     /// Adds a new configuration option with the specified path and value.
     /// </summary>
-    /// <typeparam name="T">The type of the option value.</typeparam>
+    /// <typeparam name="TOption">The type of the option.</typeparam>
     /// <param name="path">The path of the option to add.</param>
-    /// <param name="value">The value of the option.</param>
     /// <returns>The created configuration option.</returns>
-    IConfigurationOption<T> AddOption<T>(string path, T value);
+    TOption AddOption<TOption>(string path) where TOption : class, IConfigurationOption, new();
 
     /// <summary>
     /// Removes the configuration option with the specified path.

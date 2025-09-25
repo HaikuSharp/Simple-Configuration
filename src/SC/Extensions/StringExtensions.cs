@@ -16,6 +16,8 @@ public static class StringExtensions
     /// <returns>The extracted section name, or the original path if no section is found.</returns>
     public static string GetSectionName(this string path, string prefix, string separator)
     {
+        if(string.IsNullOrEmpty(path)) return prefix;
+
         int startSectionNameIndex = path.IndexOf(separator, prefix.Length);
 
         if(startSectionNameIndex is -1) return path;

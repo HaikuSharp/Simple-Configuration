@@ -7,25 +7,21 @@ using System.Linq;
 namespace SC;
 
 /// <inheritdoc cref="IConfiguration"/>
-public sealed class Configuration(string name, IConfigurationSettings settings) : IConfiguration
+public sealed class Configuration(IConfigurationSettings settings) : IConfiguration
 {
-    private IConfigurationValueSource m_LoadedSource;
-    private readonly Dictionary<string, IConfigurationOption> m_Options = new(settings.InitializeCapacity);
+    private readonly PathValidator m_Validator = new(settings);
+    private readonly Dictionary<string, ConfigurationOptionEntry> m_Options = new(settings.InitializeCapacity);
 
-    /// <inheritdoc/>
-    public string Name => name;
+    private IConfigurationValueSource m_LoadedSource;
 
     /// <inheritdoc/>
     public IConfigurationSettings Settings => settings;
 
     /// <inheritdoc/>
-    public IEnumerable<IConfigurationOption> Options => m_Options.Values;
-
-    /// <inheritdoc/>
-    IEnumerable<IReadOnlyConfigurationOption> IReadOnlyConfiguration.Options => Options;
-
-    /// <inheritdoc/>
     public bool HasLoadedSource => m_LoadedSource is not null;
+
+    /// <inheritdoc/>
+    private IEnumerable<ConfigurationOptionEntry> Entries => m_Options.Values;
 
     /// <inheritdoc/>
     public bool HasOption(string path) => m_Options.ContainsKey(path) || (TryGetLoadedSource(out var source) && source.HasRaw(path));
@@ -33,87 +29,50 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
     /// <inheritdoc/>
     public IEnumerable<string> GetOptionsNames(string path)
     {
-        var optionsNames = InternalGetOptionsNames(path);
-        return TryGetLoadedSource(out var source) ? optionsNames.Concat(source.GetRawsNames(path)) : optionsNames;
+        var names = Entries.Where(e => e.Path.StartsWith(path)).Select(e => e.Name);
+        if(TryGetLoadedSource(out var source)) names = names.Concat(source.GetRawsNames(path)).Distinct();
+        return names;
     }
 
     /// <inheritdoc/>
-    public IConfigurationOption<T> GetOption<T>(string path) => m_Options.TryGetValue(path, out var loadedOption) ? loadedOption as IConfigurationOption<T> : InternalVerifyAndAddRawOption<T>(path);
+    public TOption GetOption<TOption>(string path) where TOption : class, IConfigurationOption, new()
+    {
+        if(m_Options.TryGetValue(path, out var entry)) return entry.Option as TOption;
+
+        if(TryGetLoadedSource(out var source) && source.HasRaw(path))
+        {
+            var option = InternalAddOption<TOption>(path);
+            option.Load(path, source);
+            return option;
+        }
+
+        return null;
+    }
 
     /// <inheritdoc/>
-    public IConfigurationOption<T> AddOption<T>(string path, T value) => InternalAddOption(path, value);
+    public TOption AddOption<TOption>(string path) where TOption : class, IConfigurationOption, new() => HasOption(path) ? throw new InvalidOperationException() : InternalAddOption<TOption>(path);
 
     /// <inheritdoc/>
     public void RemoveOption(string path)
     {
-        _ = m_Options.Remove(path);
-
-        if(!TryGetLoadedSource(out var source)) return;
-
-        source.RemoveRaw(path);
+        if(m_Options.Remove(path)) m_Validator.Remove(path);
+        if(TryGetLoadedSource(out var source)) source.RemoveRaw(path);
     }
 
     /// <inheritdoc/>
-    public void Save(string path, IConfigurationValueSource source) => InternalSaveOptions(path, source);
+    public void Save(string path, IConfigurationValueSource source)
+    {
+        if(!TryGetNotNullSource(source, out source)) return;
+
+        foreach(var entry in GetEntriesByPath(path)) entry.Save(source);
+    }
 
     /// <inheritdoc/>
-    public void Load(string path, IConfigurationValueSource source) => InternalLoadOptions(path, source);
-
-    private void InternalSaveOptions(string path, IConfigurationValueSource source)
+    public void Load(string path, IConfigurationValueSource source)
     {
-        source = GetSource(source);
+        if(!TryGetNotNullSource(source, out source)) return;
 
-        if(string.IsNullOrEmpty(path)) InternalSaveAllOptions(source);
-        else InternalSaveOptionsWithPath(path, source);
-    }
-
-    private void InternalSaveOptionsWithPath(string path, IConfigurationValueSource source)
-    {
-        foreach(var option in Options)
-        {
-            if(!option.Path.StartsWith(path)) continue;
-            option.Save(source);
-        }
-    }
-
-    private void InternalSaveAllOptions(IConfigurationValueSource source)
-    {
-        foreach(var option in Options) option.Save(source);
-    }
-
-    private void InternalLoadOptions(string path, IConfigurationValueSource source)
-    {
-        source = GetSource(source);
-
-        if(string.IsNullOrEmpty(path)) InternalLoadAllOptions(source);
-        else InternalLoadOptionsWithPath(path, source);
-
-        m_LoadedSource = source;
-    }
-
-    private void InternalLoadOptionsWithPath(string path, IConfigurationValueSource source)
-    {
-        foreach(var option in Options)
-        {
-            if(!option.Path.StartsWith(path)) continue;
-            option.Load(source);
-        }
-    }
-
-    private void InternalLoadAllOptions(IConfigurationValueSource source)
-    {
-        foreach(var option in Options) option.Load(source);
-    }
-
-    private ConfigurationOption<T> InternalVerifyAndAddRawOption<T>(string path) => !Options.Any(o => path.StartsWith(o.Path)) ? InternalAddRawOption<T>(path) : throw new InvalidOperationException();
-
-    private ConfigurationOption<T> InternalAddRawOption<T>(string path) => TryGetLoadedSource(out var source) && source.TryGetRaw(path, out T raw) ? InternalAddOption(path, raw) : null;
-
-    private ConfigurationOption<T> InternalAddOption<T>(string path, T value)
-    {
-        ConfigurationOption<T> option = new(path, GetOptionName(path), value);
-        m_Options.Add(path, option);
-        return option;
+        foreach(var entry in GetEntriesByPath(path)) entry.Load(source);
     }
 
     private string GetOptionName(string path)
@@ -129,47 +88,87 @@ public sealed class Configuration(string name, IConfigurationSettings settings) 
 #pragma warning restore IDE0079
     }
 
+    private TOption InternalAddOption<TOption>(string path) where TOption : class, IConfigurationOption, new()
+    {
+        ValidatePath(path);
+        TOption option = new();
+        m_Options.Add(path, new(GetOptionName(path), path, option));
+        return option;
+    }
+
+    private void ValidatePath(string path) => m_Validator.Validate(path);
+
+    private IEnumerable<ConfigurationOptionEntry> GetEntriesByPath(string path) => string.IsNullOrEmpty(path) ? Entries : Entries.Where(e => e.Path.StartsWith(path));
+
     private bool TryGetLoadedSource(out IConfigurationValueSource source) => (source = m_LoadedSource) is not null;
 
-#pragma warning disable IDE0079
-#pragma warning disable IDE0057
-
-    private IEnumerable<string> InternalGetOptionsNames(string path) => string.IsNullOrEmpty(path) ? m_Options.Keys : m_Options.Keys.Where(k => k.StartsWith(path)).Select(k => k.GetSectionName(path, Settings.Separator));
-
-#pragma warning restore IDE0057
-#pragma warning restore IDE0079
-
-    private IConfigurationValueSource GetSource(IConfigurationValueSource source) => (source ??= m_LoadedSource) is not null ? source : throw new NullReferenceException("The value source cannot be null or not loaded previously.");
-
-    /// <inheritdoc/>
-    IReadOnlyConfigurationOption<T> IReadOnlyConfiguration.GetOption<T>(string path) => GetOption<T>(path);
-
-    private sealed class ConfigurationOption<T>(string path, string name, T optionValue) : IConfigurationOption<T>
+    private bool TryGetNotNullSource(IConfigurationValueSource entrySource, out IConfigurationValueSource source)
     {
-        public string Name => name;
-
-        public string Path => path;
-
-        public Type ValueType => typeof(T);
-
-        public T Value { get; set; } = optionValue;
-
-        object IReadOnlyConfigurationOption.Value => Value;
-
-        object IConfigurationOption.Value
+        if(entrySource is not null)
         {
-            get => Value;
-            set => Value = (T)value;
+            source = m_LoadedSource = entrySource;
+            return true;
         }
 
-        public void Save(IConfigurationValueSource valueSource) => valueSource.SetRaw(Path, Value);
+        return TryGetLoadedSource(out source);
+    }
 
-        public void Load(IConfigurationValueSource valueSource)
+    private readonly struct ConfigurationOptionEntry(string name, string path, IConfigurationOption option)
+    {
+        internal string Name { get; } = name;
+
+        internal string Path { get; } = path;
+
+        internal IConfigurationOption Option { get; } = option;
+
+        internal void Save(IConfigurationValueSource source) => Option.Save(Path, source);
+
+        internal void Load(IConfigurationValueSource source) => Option.Load(Path, source);
+    }
+
+    private class PathValidator(IConfigurationSettings settings)
+    {
+        private readonly HashSet<string> m_Paths = [];
+        private readonly IConfigurationSettings m_Settings = settings;
+
+        internal void Validate(string path)
         {
-            if(!valueSource.TryGetRaw<T>(Path, out var value)) return;
-            Value = value;
+            ValidateParentPaths(path);
+            ValidateChildrenPaths(path);
+
+            m_Paths.Add(path);
         }
 
-        public override string ToString() => $"({Path}, {Value})";
+        internal void Clear() => m_Paths.Clear();
+
+        internal void Remove(string path) => _ = m_Paths.Remove(path);
+
+        private void ValidateParentPaths(string path)
+        {
+            foreach(var parentPath in GetParentPaths(path))
+            {
+                if(!m_Paths.Contains(parentPath)) continue;
+                throw new InvalidOperationException($"Cannot request path '{path}' because parent path '{parentPath}' was already requested");
+            }
+        }
+
+        private void ValidateChildrenPaths(string path)
+        {
+            foreach(string childPath in m_Paths.Where(requestedPath => IsDescendantPath(requestedPath, path))) throw new InvalidOperationException($"Cannot request path '{path}' because descendant path '{childPath}' was already requested");
+        }
+
+        private IEnumerable<string> GetParentPaths(string key)
+        {
+            var settings = m_Settings;
+            var currentPath = string.Empty;
+
+            foreach(var pathPart in key.AsPathEnumerator(settings.Separator))
+            {
+                currentPath = settings.CombinePaths(currentPath, pathPart);
+                yield return currentPath;
+            }
+        }
+
+        private bool IsDescendantPath(string potentialDescendant, string potentialAncestor) => potentialDescendant.StartsWith(potentialAncestor + m_Settings.Separator);
     }
 }

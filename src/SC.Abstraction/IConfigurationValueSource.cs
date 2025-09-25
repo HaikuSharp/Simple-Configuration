@@ -63,6 +63,11 @@ public interface IConfigurationValueSource
     void RemoveRaw(string path);
 
     /// <summary>
+    /// Clear the raw values.
+    /// </summary>
+    void Clear();
+
+    /// <summary>
     /// Saves all changes to the value source.
     /// </summary>
     void Save();

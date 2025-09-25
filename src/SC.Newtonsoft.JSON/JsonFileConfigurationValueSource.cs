@@ -59,7 +59,18 @@ public class JsonFileConfigurationValueSource(string filePath, IConfigurationSet
     }
 
     /// <inheritdoc/>
-    public void RemoveRaw(string path) => InternalGetRawJsonValue(path)?.Remove();
+    public void RemoveRaw(string path)
+    {
+        InternalGetRawJsonValueWithoutCacheUpdate(path)?.Remove();
+        _ = m_TokensCache.Remove(path);
+    }
+
+    /// <inheritdoc/>
+    public void Clear()
+    {
+        m_Source = null;
+        m_TokensCache.Clear();
+    }
 
     private JToken InternalGetOrCreateRawJsonValue(string path)
     {
@@ -67,26 +78,28 @@ public class JsonFileConfigurationValueSource(string filePath, IConfigurationSet
 
         if(currentToken is null) return null;
         if(string.IsNullOrWhiteSpace(path)) return currentToken;
-        if(path.IndexOf(settings.Separator) is -1) return currentToken.SelectToken(path);
+        if(path.IndexOf(settings.Separator) is -1) return currentToken[path];
 
-        foreach(string pathPart in InternalGetPathEnumerator(path)) currentToken = currentToken.SelectToken(pathPart) ?? (currentToken[pathPart] = new JObject());
+        foreach(string pathPart in InternalGetPathEnumerator(path)) currentToken = currentToken[pathPart] ?? (currentToken[pathPart] = new JObject());
 
         return currentToken;
     }
 
-    private JToken InternalGetRawJsonValue(string path) => m_TokensCache.TryGetValue(path, out var token) ? token : (m_TokensCache[path] = FindRawJsonValue(path));
+    private JToken InternalGetRawJsonValue(string path) => m_TokensCache.TryGetValue(path, out var token) ? token : (m_TokensCache[path] = InternalFindRawJsonValue(path));
 
-    private JToken FindRawJsonValue(string path)
+    private JToken InternalGetRawJsonValueWithoutCacheUpdate(string path) => m_TokensCache.TryGetValue(path, out var token) ? token : InternalFindRawJsonValue(path);
+
+    private JToken InternalFindRawJsonValue(string path)
     {
         var currentToken = NotNullSource;
 
         if(currentToken is null) return null;
         if(string.IsNullOrWhiteSpace(path)) return currentToken;
-        if(path.IndexOf(settings.Separator) is -1) return currentToken.SelectToken(path);
+        if(path.IndexOf(settings.Separator) is -1) return currentToken[path];
 
         foreach(string pathPart in InternalGetPathEnumerator(path))
         {
-            currentToken = currentToken.SelectToken(pathPart);
+            currentToken = currentToken[pathPart];
             if(currentToken is null) break;
         }
 
