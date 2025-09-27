@@ -35,7 +35,7 @@ public sealed class Configuration(IConfigurationSettings settings) : IConfigurat
     public TOption GetOption<TOption>(string path) where TOption : ConfigurationOptionBase, new() => m_Options.TryGetValue(path, out var option) ? option as TOption : TryGetLoadedSource(out var source) && source.HasRaw(path) ? InternalAddOptionAndLoad<TOption>(path, source) : null;
 
     /// <inheritdoc/>
-    public TOption AddOption<TOption>(string path) where TOption : ConfigurationOptionBase, new() => HasOption(path) ? throw new InvalidOperationException() : InternalAddOption<TOption>(path);
+    public TOption AddOption<TOption>(string path) where TOption : ConfigurationOptionBase, new() => HasOption(path) ? throw new InvalidOperationException($"Option {path} already added.") : InternalAddOption<TOption>(path);
 
     /// <inheritdoc/>
     public void RemoveOption(string path)
