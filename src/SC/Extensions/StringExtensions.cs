@@ -1,6 +1,4 @@
 ﻿using SC.Abstraction;
-using System.Runtime;
-using System.Runtime.CompilerServices;
 
 namespace SC.Extensions;
 

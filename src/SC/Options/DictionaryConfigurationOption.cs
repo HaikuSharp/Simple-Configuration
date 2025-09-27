@@ -24,10 +24,10 @@ public sealed class DictionaryConfigurationOption<TKey, TItem> : ConfigurationOp
     public bool IsReadOnly => false;
 
     /// <inheritdoc/>
-    public TItem this[TKey key] 
-    { 
-        get => m_Dictionary[key]; 
-        set => m_Dictionary[key] = value; 
+    public TItem this[TKey key]
+    {
+        get => m_Dictionary[key];
+        set => m_Dictionary[key] = value;
     }
 
     /// <inheritdoc/>

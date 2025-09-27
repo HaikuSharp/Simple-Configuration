@@ -18,10 +18,10 @@ public sealed class ListConfigurationOption<TItem> : ConfigurationOptionBase, IL
     public bool IsReadOnly => false;
 
     /// <inheritdoc/>
-    public TItem this[int index] 
-    { 
+    public TItem this[int index]
+    {
         get => m_List[index];
-        set => m_List[index] = value; 
+        set => m_List[index] = value;
     }
 
     /// <inheritdoc/>
