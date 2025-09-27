@@ -42,5 +42,5 @@ public static class StringExtensions
     /// <param name="path">The configuration path to enumerate.</param>
     /// <param name="separator">The separator used to split the path.</param>
     /// <returns>A <see cref="ConfigurationPathEnumerator"/> for iterating through path segments.</returns>
-    public static ConfigurationPathEnumerator AsPathEnumerator(this string path, string separator) => path.AsPathEnumerator(separator);
+    public static ConfigurationPathEnumerator AsPathEnumerator(this string path, string separator) => new(path, separator);
 }
