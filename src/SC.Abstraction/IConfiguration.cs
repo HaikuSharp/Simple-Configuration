@@ -44,7 +44,7 @@ public interface IConfiguration
     /// <typeparam name="TOption">The type of the option.</typeparam>
     /// <param name="path">The path of the option to get.</param>
     /// <returns>The configuration option.</returns>
-    TOption GetOption<TOption>(string path) where TOption : class, IConfigurationOption, new();
+    TOption GetOption<TOption>(string path) where TOption : ConfigurationOptionBase, new();
 
     /// <summary>
     /// Adds a new configuration option with the specified path and value.
@@ -52,7 +52,7 @@ public interface IConfiguration
     /// <typeparam name="TOption">The type of the option.</typeparam>
     /// <param name="path">The path of the option to add.</param>
     /// <returns>The created configuration option.</returns>
-    TOption AddOption<TOption>(string path) where TOption : class, IConfigurationOption, new();
+    TOption AddOption<TOption>(string path) where TOption : ConfigurationOptionBase, new();
 
     /// <summary>
     /// Removes the configuration option with the specified path.

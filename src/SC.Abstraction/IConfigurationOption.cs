@@ -6,16 +6,24 @@
 public interface IConfigurationOption
 {
     /// <summary>
+    /// Gets option absolute path.
+    /// </summary>
+    string Path { get; }
+
+    /// <summary>
+    /// Gets option name.
+    /// </summary>
+    string Name { get; }
+
+    /// <summary>
     /// Saves the option value to the specified value source.
     /// </summary>
-    /// <param name="path">The source path.</param>
     /// <param name="valueSource">The value source to save to.</param>
-    void Save(string path, IConfigurationValueSource valueSource);
+    void Save(IConfigurationValueSource valueSource);
 
     /// <summary>
     /// Loads the option value from the specified value source.
     /// </summary>
-    /// <param name="path">The source path.</param>
     /// <param name="valueSource">The value source to load from.</param>
-    void Load(string path, IConfigurationValueSource valueSource);
+    void Load(IConfigurationValueSource valueSource);
 }

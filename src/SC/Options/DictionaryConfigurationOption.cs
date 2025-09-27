@@ -7,7 +7,7 @@ namespace SC.Options;
 /// <summary>
 /// Represents a typed dictionary configuration option.
 /// </summary>
-public sealed class DictionaryConfigurationOption<TKey, TItem> : IDictionaryConfigurationOption<TKey, TItem>
+public sealed class DictionaryConfigurationOption<TKey, TItem> : ConfigurationOptionBase, IDictionaryConfigurationOption<TKey, TItem>
 {
     private readonly Dictionary<TKey, TItem> m_Dictionary = [];
 
@@ -58,10 +58,10 @@ public sealed class DictionaryConfigurationOption<TKey, TItem> : IDictionaryConf
     public bool Remove(KeyValuePair<TKey, TItem> item) => ((ICollection<KeyValuePair<TKey, TItem>>)m_Dictionary).Remove(item);
 
     /// <inheritdoc/>
-    public void Save(string path, IConfigurationValueSource valueSource) => valueSource.SetRaw(path, m_Dictionary);
+    protected override void Save(string path, IConfigurationValueSource valueSource) => valueSource.SetRaw(path, m_Dictionary);
 
     /// <inheritdoc/>
-    public void Load(string path, IConfigurationValueSource valueSource)
+    protected override void Load(string path, IConfigurationValueSource valueSource)
     {
         if(!valueSource.TryGetRaw<Dictionary<TKey, TItem>>(path, out var rawDictionary)) return;
 

@@ -20,7 +20,7 @@ public class MemoryConfigurationValueSource(IDictionary<string, object> source, 
     public bool HasRaw(string path) => m_Values.ContainsKey(path);
 
     /// <inheritdoc/>
-    public IEnumerable<string> GetRawsNames(string path) => GetNamesByPath(path).Select(p => p.GetSectionName(path, settings.Separator));
+    public IEnumerable<string> GetRawsNames(string path) => GetChildrenPaths(path).Select(p => p.GetSectionName(path, settings.Separator));
 
     /// <inheritdoc/>
     public bool TryGetRaw<T>(string path, out T rawValue)
@@ -81,5 +81,5 @@ public class MemoryConfigurationValueSource(IDictionary<string, object> source, 
         foreach(var kvp in source) values[kvp.Key] = kvp.Value;
     }
 
-    private IEnumerable<string> GetNamesByPath(string path) => string.IsNullOrEmpty(path) ? m_Values.Keys : m_Values.Keys.Where(p => p.StartsWith(path));
+    private IEnumerable<string> GetChildrenPaths(string path) => string.IsNullOrEmpty(path) ? m_Values.Keys : m_Values.Keys.Where(p => p.StartsWith(path));
 }

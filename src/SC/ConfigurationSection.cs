@@ -23,10 +23,10 @@ public sealed class ConfigurationSection(IConfiguration configuration, string pa
     public IEnumerable<string> GetOptionsNames(string path) => configuration.GetOptionsNames(GetAbsolutePath(path));
 
     /// <inheritdoc/>
-    public TOption GetOption<TOption>(string path) where TOption : class, IConfigurationOption, new() => configuration.GetOption<TOption>(GetAbsolutePath(path));
+    public TOption GetOption<TOption>(string path) where TOption : ConfigurationOptionBase, new() => configuration.GetOption<TOption>(GetAbsolutePath(path));
 
     /// <inheritdoc/>
-    public TOption AddOption<TOption>(string path) where TOption : class, IConfigurationOption, new() => configuration.AddOption<TOption>(GetAbsolutePath(path));
+    public TOption AddOption<TOption>(string path) where TOption : ConfigurationOptionBase, new() => configuration.AddOption<TOption>(GetAbsolutePath(path));
 
     /// <inheritdoc/>
     public void RemoveOption(string path) => configuration.RemoveOption(GetAbsolutePath(path));

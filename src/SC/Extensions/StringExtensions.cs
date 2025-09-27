@@ -1,4 +1,6 @@
 ﻿using SC.Abstraction;
+using System.Runtime;
+using System.Runtime.CompilerServices;
 
 namespace SC.Extensions;
 
@@ -43,4 +45,17 @@ public static class StringExtensions
     /// <param name="separator">The separator used to split the path.</param>
     /// <returns>A <see cref="ConfigurationPathEnumerator"/> for iterating through path segments.</returns>
     public static ConfigurationPathEnumerator AsPathEnumerator(this string path, string separator) => new(path, separator);
+
+    internal static string GetOptionName(this string path, string separator)
+    {
+        int index = path.LastIndexOf(separator);
+
+#pragma warning disable IDE0079
+#pragma warning disable IDE0057
+
+        return index is not -1 ? path.Substring(index + 1) : path;
+
+#pragma warning restore IDE0057
+#pragma warning restore IDE0079
+    }
 }

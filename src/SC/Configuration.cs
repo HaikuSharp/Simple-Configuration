@@ -10,7 +10,7 @@ namespace SC;
 public sealed class Configuration(IConfigurationSettings settings) : IConfiguration
 {
     private readonly PathValidator m_Validator = new(settings);
-    private readonly Dictionary<string, ConfigurationOptionEntry> m_Options = new(settings.InitializeCapacity);
+    private readonly Dictionary<string, ConfigurationOptionBase> m_Options = new(settings.InitializeCapacity);
 
     private IConfigurationValueSource m_LoadedSource;
 
@@ -21,36 +21,21 @@ public sealed class Configuration(IConfigurationSettings settings) : IConfigurat
     public bool HasLoadedSource => m_LoadedSource is not null;
 
     /// <inheritdoc/>
-    private IEnumerable<ConfigurationOptionEntry> Entries => m_Options.Values;
-
-    /// <inheritdoc/>
     public bool HasOption(string path) => m_Options.ContainsKey(path) || (TryGetLoadedSource(out var source) && source.HasRaw(path));
 
     /// <inheritdoc/>
     public IEnumerable<string> GetOptionsNames(string path)
     {
-        var names = Entries.Where(e => e.Path.StartsWith(path)).Select(e => e.Name);
+        var names = m_Options.Values.Where(e => e.Path.StartsWith(path)).Select(e => e.Name);
         if(TryGetLoadedSource(out var source)) names = names.Concat(source.GetRawsNames(path)).Distinct();
         return names;
     }
 
     /// <inheritdoc/>
-    public TOption GetOption<TOption>(string path) where TOption : class, IConfigurationOption, new()
-    {
-        if(m_Options.TryGetValue(path, out var entry)) return entry.Option as TOption;
-
-        if(TryGetLoadedSource(out var source) && source.HasRaw(path))
-        {
-            var option = InternalAddOption<TOption>(path);
-            option.Load(path, source);
-            return option;
-        }
-
-        return null;
-    }
+    public TOption GetOption<TOption>(string path) where TOption : ConfigurationOptionBase, new() => m_Options.TryGetValue(path, out var option) ? option as TOption : TryGetLoadedSource(out var source) && source.HasRaw(path) ? InternalAddOptionAndLoad<TOption>(path, source) : null;
 
     /// <inheritdoc/>
-    public TOption AddOption<TOption>(string path) where TOption : class, IConfigurationOption, new() => HasOption(path) ? throw new InvalidOperationException() : InternalAddOption<TOption>(path);
+    public TOption AddOption<TOption>(string path) where TOption : ConfigurationOptionBase, new() => HasOption(path) ? throw new InvalidOperationException() : InternalAddOption<TOption>(path);
 
     /// <inheritdoc/>
     public void RemoveOption(string path)
@@ -64,7 +49,7 @@ public sealed class Configuration(IConfigurationSettings settings) : IConfigurat
     {
         if(!TryGetNotNullSource(source, out source)) return;
 
-        foreach(var entry in GetEntriesByPath(path)) entry.Save(source);
+        foreach(var entry in GetOptionsByPath(path)) entry.Save(source);
     }
 
     /// <inheritdoc/>
@@ -72,33 +57,27 @@ public sealed class Configuration(IConfigurationSettings settings) : IConfigurat
     {
         if(!TryGetNotNullSource(source, out source)) return;
 
-        foreach(var entry in GetEntriesByPath(path)) entry.Load(source);
+        foreach(var entry in GetOptionsByPath(path)) entry.Load(source);
     }
 
-    private string GetOptionName(string path)
+    private TOption InternalAddOptionAndLoad<TOption>(string path, IConfigurationValueSource source) where TOption : ConfigurationOptionBase, new()
     {
-        int separatorLastIndex = path.LastIndexOf(Settings.Separator);
-
-#pragma warning disable IDE0079
-#pragma warning disable IDE0057
-
-        return separatorLastIndex is -1 ? path : path.Substring(0, separatorLastIndex);
-
-#pragma warning restore IDE0057
-#pragma warning restore IDE0079
+        TOption option = InternalAddOption<TOption>(path);
+        option.Load(source);
+        return option;
     }
 
-    private TOption InternalAddOption<TOption>(string path) where TOption : class, IConfigurationOption, new()
+    private TOption InternalAddOption<TOption>(string path) where TOption : ConfigurationOptionBase, new()
     {
         ValidatePath(path);
-        TOption option = new();
-        m_Options.Add(path, new(GetOptionName(path), path, option));
+        TOption option = ConfigurationOptionBase.Create<TOption>(path, path.GetOptionName(Settings.Separator));
+        m_Options.Add(path, option);
         return option;
     }
 
     private void ValidatePath(string path) => m_Validator.Validate(path);
 
-    private IEnumerable<ConfigurationOptionEntry> GetEntriesByPath(string path) => string.IsNullOrEmpty(path) ? Entries : Entries.Where(e => e.Path.StartsWith(path));
+    private IEnumerable<ConfigurationOptionBase> GetOptionsByPath(string path) => string.IsNullOrEmpty(path) ? m_Options.Values : m_Options.Values.Where(o => o.Path.StartsWith(path));
 
     private bool TryGetLoadedSource(out IConfigurationValueSource source) => (source = m_LoadedSource) is not null;
 
@@ -111,19 +90,6 @@ public sealed class Configuration(IConfigurationSettings settings) : IConfigurat
         }
 
         return TryGetLoadedSource(out source);
-    }
-
-    private readonly struct ConfigurationOptionEntry(string name, string path, IConfigurationOption option)
-    {
-        internal string Name { get; } = name;
-
-        internal string Path { get; } = path;
-
-        internal IConfigurationOption Option { get; } = option;
-
-        internal void Save(IConfigurationValueSource source) => Option.Save(Path, source);
-
-        internal void Load(IConfigurationValueSource source) => Option.Load(Path, source);
     }
 
     private class PathValidator(IConfigurationSettings settings)

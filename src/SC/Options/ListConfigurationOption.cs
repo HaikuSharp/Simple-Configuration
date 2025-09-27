@@ -7,7 +7,7 @@ namespace SC.Options;
 /// <summary>
 /// Represents a typed list configuration option.
 /// </summary>
-public sealed class ListConfigurationOption<TItem> : IConfigurationOption, IList<TItem>
+public sealed class ListConfigurationOption<TItem> : ConfigurationOptionBase, IListConfigurationOption<TItem>
 {
     private readonly List<TItem> m_List = [];
 
@@ -52,10 +52,10 @@ public sealed class ListConfigurationOption<TItem> : IConfigurationOption, IList
     public List<TItem>.Enumerator GetEnumerator() => m_List.GetEnumerator();
 
     /// <inheritdoc/>
-    public void Save(string path, IConfigurationValueSource valueSource) => valueSource.SetRaw(path, m_List);
+    protected override void Save(string path, IConfigurationValueSource valueSource) => valueSource.SetRaw(path, m_List);
 
     /// <inheritdoc/>
-    public void Load(string path, IConfigurationValueSource valueSource)
+    protected override void Load(string path, IConfigurationValueSource valueSource)
     {
         if(!valueSource.TryGetRaw<List<TItem>>(path, out var rawList)) return;
 
