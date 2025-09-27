@@ -26,7 +26,7 @@ public sealed class Configuration(IConfigurationSettings settings) : IConfigurat
     /// <inheritdoc/>
     public IEnumerable<string> GetOptionsNames(string path)
     {
-        var names = GetOptionsByPath(path).Select(e => e.Name);
+        var names = GetOptionsByPath(path).Select(e => e.Path.GetSectionName(path, Settings.Separator));
         if(TryGetLoadedSource(out var source)) names = names.Concat(source.GetRawsNames(path)).Distinct();
         return names;
     }
