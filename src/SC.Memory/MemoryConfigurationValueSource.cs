@@ -20,7 +20,7 @@ public class MemoryConfigurationValueSource(IDictionary<string, object> source, 
     public bool HasRaw(string path) => m_Values.ContainsKey(path);
 
     /// <inheritdoc/>
-    public IEnumerable<string> GetRawsNames(string path) => m_Values.Keys.Where(k => k.StartsWith(path)).Select(k => k.GetSectionName(path, settings.Separator));
+    public IEnumerable<string> GetRawsNames(string path) => GetNamesByPath(path).Select(p => p.GetSectionName(path, settings.Separator));
 
     /// <inheritdoc/>
     public bool TryGetRaw<T>(string path, out T rawValue)
@@ -44,6 +44,9 @@ public class MemoryConfigurationValueSource(IDictionary<string, object> source, 
     /// <inheritdoc/>
     public void RemoveRaw(string path) => _ = m_Values.Remove(path);
 
+    /// <inheritdoc/>
+    public void Clear() => m_Values.Clear();
+
     private static T InternalConvertValue<T>(object sourceValue) => (T)InternalConvertValue(sourceValue, typeof(T));
 
     private static object InternalConvertValue(object sourceValue, Type type)
@@ -58,12 +61,6 @@ public class MemoryConfigurationValueSource(IDictionary<string, object> source, 
     /// <inheritdoc/>
     public void Load() => CopyValues(m_Values, m_Source);
 
-    private static void CopyValues(IDictionary<string, object> values, IDictionary<string, object> source)
-    {
-        values.Clear();
-        foreach(var kvp in source) values[kvp.Key] = kvp.Value;
-    }
-
     /// <inheritdoc/>
     public Task SaveAsync()
     {
@@ -77,4 +74,12 @@ public class MemoryConfigurationValueSource(IDictionary<string, object> source, 
         Load();
         return Task.CompletedTask;
     }
+
+    private static void CopyValues(IDictionary<string, object> values, IDictionary<string, object> source)
+    {
+        values.Clear();
+        foreach(var kvp in source) values[kvp.Key] = kvp.Value;
+    }
+
+    private IEnumerable<string> GetNamesByPath(string path) => string.IsNullOrEmpty(path) ? m_Values.Keys : m_Values.Keys.Where(p => p.StartsWith(path));
 }

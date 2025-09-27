@@ -1,7 +1,6 @@
 ﻿using SC.Abstraction;
 using SC.Extensions;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace SC;
 
@@ -9,19 +8,10 @@ namespace SC;
 public sealed class ConfigurationSection(IConfiguration configuration, string path) : IConfigurationSection
 {
     /// <inheritdoc/>
-    public string Name { get; } = string.Format(configuration.Settings.SectionNameFormat, configuration.Name, path);
-
-    /// <inheritdoc/>
     public string Path => path;
 
     /// <inheritdoc/>
     public IConfigurationSettings Settings => configuration.Settings;
-
-    /// <inheritdoc/>
-    public IEnumerable<IConfigurationOption> Options => configuration.Options.Where(o => o.Path.StartsWith(Path));
-
-    /// <inheritdoc/>
-    IEnumerable<IReadOnlyConfigurationOption> IReadOnlyConfiguration.Options => Options;
 
     /// <inheritdoc/>
     public bool HasLoadedSource => configuration.HasLoadedSource;
@@ -33,10 +23,10 @@ public sealed class ConfigurationSection(IConfiguration configuration, string pa
     public IEnumerable<string> GetOptionsNames(string path) => configuration.GetOptionsNames(GetAbsolutePath(path));
 
     /// <inheritdoc/>
-    public IConfigurationOption<T> GetOption<T>(string path) => configuration.GetOption<T>(GetAbsolutePath(path));
+    public TOption GetOption<TOption>(string path) where TOption : class, IConfigurationOption, new() => configuration.GetOption<TOption>(GetAbsolutePath(path));
 
     /// <inheritdoc/>
-    public IConfigurationOption<T> AddOption<T>(string path, T value) => configuration.AddOption(GetAbsolutePath(path), value);
+    public TOption AddOption<TOption>(string path) where TOption : class, IConfigurationOption, new() => configuration.AddOption<TOption>(GetAbsolutePath(path));
 
     /// <inheritdoc/>
     public void RemoveOption(string path) => configuration.RemoveOption(GetAbsolutePath(path));
@@ -49,7 +39,4 @@ public sealed class ConfigurationSection(IConfiguration configuration, string pa
 
     /// <inheritdoc/>
     public void Load(string path, IConfigurationValueSource source) => configuration.Load(GetAbsolutePath(path), source);
-
-    /// <inheritdoc/>
-    IReadOnlyConfigurationOption<T> IReadOnlyConfiguration.GetOption<T>(string path) => GetOption<T>(path);
 }

@@ -8,7 +8,7 @@ namespace SC;
 /// <summary>
 /// Represents a configuration values source that loads from and saves to other sources.
 /// </summary>
-public class CompositeConfigurationValueSource<TSource> : IConfigurationValueSource where TSource : IConfigurationValueSource
+public sealed class CompositeConfigurationValueSource<TSource> : IConfigurationValueSource where TSource : IConfigurationValueSource
 {
     private readonly List<TSource> m_Sources = [];
 
@@ -25,7 +25,7 @@ public class CompositeConfigurationValueSource<TSource> : IConfigurationValueSou
     }
 
     /// <inheritdoc/>
-    public IEnumerable<string> GetRawsNames(string path) => m_Sources.SelectMany(s => s.GetRawsNames(path));
+    public IEnumerable<string> GetRawsNames(string path) => m_Sources.SelectMany(s => s.GetRawsNames(path)).Distinct();
 
     /// <inheritdoc/>
     public bool HasRaw(string path) => m_Sources.Any(s => s.HasRaw(path));
@@ -43,6 +43,9 @@ public class CompositeConfigurationValueSource<TSource> : IConfigurationValueSou
         raw = default;
         return false;
     }
+
+    /// <inheritdoc/>
+    public void Clear() => m_Sources.ForEach(s => s.Clear());
 
     /// <inheritdoc/>
     public void Load() => m_Sources.ForEach(s => s.Load());

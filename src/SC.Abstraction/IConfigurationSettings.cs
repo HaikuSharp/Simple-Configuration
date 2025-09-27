@@ -11,11 +11,6 @@ public interface IConfigurationSettings
     string Separator { get; }
 
     /// <summary>
-    /// Gets the format used for section names.
-    /// </summary>
-    string SectionNameFormat { get; }
-
-    /// <summary>
     /// Gets the initial capacity for configuration collections.
     /// </summary>
     int InitializeCapacity { get; }
