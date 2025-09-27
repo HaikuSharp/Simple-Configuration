@@ -23,7 +23,7 @@ public abstract class ConfigurationOptionBase : IConfigurationOption
     /// <typeparam name="TOption">Option type.</typeparam>
     /// <param name="path">The option path.</param>
     /// <param name="name">The option name</param>
-    /// <returns></returns>
+    /// <returns>new option</returns>
     public static TOption Create<TOption>(string path, string name) where TOption : ConfigurationOptionBase, new() => new()
     {
         Path = path,
