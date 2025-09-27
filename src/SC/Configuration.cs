@@ -77,7 +77,7 @@ public sealed class Configuration(IConfigurationSettings settings) : IConfigurat
 
     private void ValidatePath(string path) => m_Validator.Validate(path);
 
-    private IEnumerable<ConfigurationOptionBase> GetOptionsByPath(string path) => string.IsNullOrEmpty(path) ? m_Options.Values : m_Options.Values.Where(o => o.Path.StartsWith(path));
+    private IEnumerable<ConfigurationOptionBase> GetOptionsByPath(string path) => string.IsNullOrEmpty(path) ? m_Options.Values : m_Options.Values.Where(o => m_Validator.IsDescendantPath(o.Path, path));
 
     private bool TryGetLoadedSource(out IConfigurationValueSource source) => (source = m_LoadedSource) is not null;
 
@@ -109,6 +109,8 @@ public sealed class Configuration(IConfigurationSettings settings) : IConfigurat
 
         internal void Remove(string path) => _ = m_Paths.Remove(path);
 
+        internal bool IsDescendantPath(string potentialDescendant, string potentialAncestor) => potentialDescendant.StartsWith(potentialAncestor + m_Settings.Separator);
+
         private void ValidateParentPaths(string path)
         {
             foreach(var parentPath in GetParentPaths(path))
@@ -134,7 +136,5 @@ public sealed class Configuration(IConfigurationSettings settings) : IConfigurat
                 yield return currentPath;
             }
         }
-
-        private bool IsDescendantPath(string potentialDescendant, string potentialAncestor) => potentialDescendant.StartsWith(potentialAncestor + m_Settings.Separator);
     }
 }
