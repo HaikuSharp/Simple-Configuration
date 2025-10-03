@@ -153,7 +153,7 @@ public class JsonFileConfigurationValueSource(string filePath, IConfigurationSet
     /// <inheritdoc/>
     public async Task SaveAsync()
     {
-        if(m_Source == null) return;
+        var source = NotNullSource;
 
         string directory = Path.GetDirectoryName(filePath);
 
@@ -167,6 +167,21 @@ public class JsonFileConfigurationValueSource(string filePath, IConfigurationSet
             Formatting = Formatting.Indented
         };
 
-        await m_Source.WriteToAsync(jsonWriter).ConfigureAwait(false);
+        await source.WriteToAsync(jsonWriter).ConfigureAwait(false);
     }
+
+    /// <inheritdoc/>
+    public void RemoveExcept(params IEnumerable<string> paths)
+    {
+        if(!paths.Any())
+        {
+            Clear();
+            return;
+        }
+
+        var separator = settings.Separator;
+        foreach(var token in NotNullSource.Where(t => !paths.Any(path => IsTokenInPath(t, path, separator)))) token.Remove();
+    }
+
+    private static bool IsTokenInPath(JToken token, string targetPath, string separator) => token.Path == targetPath || targetPath.StartsWith(token.Path + separator);
 }

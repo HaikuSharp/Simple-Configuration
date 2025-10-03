@@ -44,7 +44,7 @@ public interface IConfiguration
     /// <typeparam name="TOption">The type of the option.</typeparam>
     /// <param name="path">The path of the option to get.</param>
     /// <returns>The configuration option.</returns>
-    TOption GetOption<TOption>(string path) where TOption : ConfigurationOptionBase, new();
+    TOption GetOption<TOption>(string path) where TOption : class, IConfigurationOption, new();
 
     /// <summary>
     /// Adds a new configuration option with the specified path and value.
@@ -52,7 +52,7 @@ public interface IConfiguration
     /// <typeparam name="TOption">The type of the option.</typeparam>
     /// <param name="path">The path of the option to add.</param>
     /// <returns>The created configuration option.</returns>
-    TOption AddOption<TOption>(string path) where TOption : ConfigurationOptionBase, new();
+    TOption AddOption<TOption>(string path) where TOption : class, IConfigurationOption, new();
 
     /// <summary>
     /// Removes the configuration option with the specified path.
@@ -73,4 +73,11 @@ public interface IConfiguration
     /// <param name="path">The configuration section path.</param>
     /// <param name="source">The value source.</param>
     void Load(string path, IConfigurationValueSource source);
+
+    /// <summary>
+    /// Synchronizes the configuration with the specified source. Removing unnecessary values from source.
+    /// </summary>
+    /// <param name="path">The configuration path to synchronize.</param>
+    /// <param name="source">The source containing the desired configuration values.</param>
+    void Sync(string path, IConfigurationValueSource source);
 }

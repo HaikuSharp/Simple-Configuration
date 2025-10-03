@@ -62,6 +62,18 @@ public class MemoryConfigurationValueSource(IDictionary<string, object> source, 
     public void Load() => CopyValues(m_Values, m_Source);
 
     /// <inheritdoc/>
+    public void RemoveExcept(params IEnumerable<string> paths)
+    {
+        var values = m_Values;
+
+        foreach(var valuePath in values.Keys)
+        {
+            if(paths.Contains(valuePath)) continue;
+            _ = values.Remove(valuePath);
+        }
+    }
+
+    /// <inheritdoc/>
     public Task SaveAsync()
     {
         Save();

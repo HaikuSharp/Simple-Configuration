@@ -63,6 +63,12 @@ public interface IConfigurationValueSource
     void RemoveRaw(string path);
 
     /// <summary>
+    /// Removes all raw values ​​other than the specified ones.
+    /// </summary>
+    /// <param name="paths">The paths of the values to except.</param>
+    void RemoveExcept(params IEnumerable<string> paths);
+
+    /// <summary>
     /// Clear the raw values.
     /// </summary>
     void Clear();
