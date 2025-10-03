@@ -1,10 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SC.Abstraction;
-using SC.Extensions;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace SC.Newtonsoft.JSON;
@@ -14,115 +12,50 @@ namespace SC.Newtonsoft.JSON;
 /// </summary>
 public class JsonFileConfigurationValueSource(string filePath, IConfigurationSettings settings) : IFileConfigurationValueSource
 {
-    private readonly Dictionary<string, JToken> m_TokensCache = [];
-    private JToken m_Source;
+    private readonly IConfigurationSettings m_Settings = settings;
+    private JsonConfigurationValueSource m_Source = new(new JObject(), settings);
 
     /// <inheritdoc/>
     public string FilePath => filePath;
 
-    private JToken NotNullSource => m_Source ??= new JObject();
+    /// <inheritdoc/>
+    public bool HasRaw(string path) => m_Source.HasRaw(path);
 
     /// <inheritdoc/>
-    public bool HasRaw(string path) => InternalGetRawJsonValue(path) is not null;
+    public IEnumerable<string> GetRawsNames(string path) => m_Source.GetRawsNames(path);
 
     /// <inheritdoc/>
-    public IEnumerable<string> GetRawsNames(string path) => InternalGetRawJsonValue(path)?.Children().OfType<JProperty>().Select(p => p.Name) ?? [];
+    public bool TryGetRaw<T>(string path, out T rawValue) => m_Source.TryGetRaw(path, out rawValue);
 
     /// <inheritdoc/>
-    public bool TryGetRaw<T>(string path, out T rawValue)
-    {
-        var token = InternalGetRawJsonValue(path);
-
-        if(token is not null)
-        {
-            rawValue = token.ToObject<T>();
-            return true;
-        }
-
-        rawValue = default;
-        return false;
-    }
+    public T GetRaw<T>(string path) => m_Source.GetRaw<T>(path);
 
     /// <inheritdoc/>
-    public T GetRaw<T>(string path)
-    {
-        var token = InternalGetRawJsonValue(path);
-        return token is not null ? token.ToObject<T>() : default;
-    }
+    public void SetRaw<T>(string path, T rawValue) => m_Source.SetRaw(path, rawValue);
 
     /// <inheritdoc/>
-    public void SetRaw<T>(string path, T rawValue)
-    {
-        var token = InternalGetOrCreateRawJsonValue(path);
-        token.Replace(JToken.FromObject(rawValue));
-        m_TokensCache[path] = token;
-    }
+    public void RemoveRaw(string path) => m_Source.RemoveRaw(path);
 
     /// <inheritdoc/>
-    public void RemoveRaw(string path)
-    {
-        InternalGetRawJsonValueWithoutCacheUpdate(path)?.Remove();
-        _ = m_TokensCache.Remove(path);
-    }
-
-    /// <inheritdoc/>
-    public void Clear()
-    {
-        m_Source = null;
-        m_TokensCache.Clear();
-    }
-
-    private JToken InternalGetOrCreateRawJsonValue(string path)
-    {
-        var currentToken = NotNullSource;
-
-        if(currentToken is null) return null;
-        if(string.IsNullOrWhiteSpace(path)) return currentToken;
-        if(path.IndexOf(settings.Separator) is -1) return currentToken[path];
-
-        foreach(string pathPart in InternalGetPathEnumerator(path)) currentToken = currentToken[pathPart] ?? (currentToken[pathPart] = new JObject());
-
-        return currentToken;
-    }
-
-    private JToken InternalGetRawJsonValue(string path) => m_TokensCache.TryGetValue(path, out var token) ? token : (m_TokensCache[path] = InternalFindRawJsonValue(path));
-
-    private JToken InternalGetRawJsonValueWithoutCacheUpdate(string path) => m_TokensCache.TryGetValue(path, out var token) ? token : InternalFindRawJsonValue(path);
-
-    private JToken InternalFindRawJsonValue(string path)
-    {
-        var currentToken = NotNullSource;
-
-        if(currentToken is null) return null;
-        if(string.IsNullOrWhiteSpace(path)) return currentToken;
-        if(path.IndexOf(settings.Separator) is -1) return currentToken[path];
-
-        foreach(string pathPart in InternalGetPathEnumerator(path))
-        {
-            currentToken = currentToken[pathPart];
-            if(currentToken is null) break;
-        }
-
-        return currentToken;
-    }
-
-    private ConfigurationPathEnumerator InternalGetPathEnumerator(string path) => path.AsPathEnumerator(settings.Separator);
+    public void Clear() => m_Source.Clear();
 
     /// <inheritdoc/>
     public void Load()
     {
         if(!File.Exists(filePath)) throw new FileNotFoundException(filePath);
 
+        m_Source.Load();
+
         using StreamReader streamReader = new(filePath);
         using JsonTextReader jsonReader = new(streamReader);
-        m_Source = JToken.Load(jsonReader);
-        m_TokensCache.Clear();
+
+        m_Source = new(JToken.Load(jsonReader), m_Settings);
     }
 
     /// <inheritdoc/>
     public void Save()
     {
-        var source = NotNullSource;
+        var token = m_Source.NotNullSource;
 
         string directory = Path.GetDirectoryName(filePath);
 
@@ -134,7 +67,7 @@ public class JsonFileConfigurationValueSource(string filePath, IConfigurationSet
             Formatting = Formatting.Indented
         };
 
-        source.WriteTo(jsonWriter);
+        token.WriteTo(jsonWriter);
     }
 
     /// <inheritdoc/>
@@ -146,14 +79,14 @@ public class JsonFileConfigurationValueSource(string filePath, IConfigurationSet
 
         using StreamReader streamReader = new(fileStream);
         using JsonTextReader jsonReader = new(streamReader);
-        m_Source = await JToken.LoadAsync(jsonReader).ConfigureAwait(false);
-        m_TokensCache.Clear();
+
+        m_Source = new(await JToken.LoadAsync(jsonReader).ConfigureAwait(false), m_Settings);
     }
 
     /// <inheritdoc/>
     public async Task SaveAsync()
     {
-        var source = NotNullSource;
+        var source = m_Source.NotNullSource;
 
         string directory = Path.GetDirectoryName(filePath);
 
@@ -171,17 +104,5 @@ public class JsonFileConfigurationValueSource(string filePath, IConfigurationSet
     }
 
     /// <inheritdoc/>
-    public void RemoveExcept(params IEnumerable<string> paths)
-    {
-        if(!paths.Any())
-        {
-            Clear();
-            return;
-        }
-
-        var separator = settings.Separator;
-        foreach(var token in NotNullSource.Where(t => !paths.Any(path => IsTokenInPath(t, path, separator)))) token.Remove();
-    }
-
-    private static bool IsTokenInPath(JToken token, string targetPath, string separator) => token.Path == targetPath || targetPath.StartsWith(token.Path + separator);
+    public void RemoveExcept(params IEnumerable<string> paths) => m_Source.RemoveExcept(paths);
 }
