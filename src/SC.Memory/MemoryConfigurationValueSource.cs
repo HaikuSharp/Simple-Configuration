@@ -13,8 +13,7 @@ namespace SC.Memory;
 /// </summary>
 public class MemoryConfigurationValueSource(IDictionary<string, object> source, IConfigurationSettings settings) : IConfigurationValueSource
 {
-    private readonly IDictionary<string, object> m_Source = source;
-    private readonly Dictionary<string, object> m_Values = source.ToDictionary(k => k.Key, k => k.Value);
+    private readonly IDictionary<string, object> m_Values = source;
 
     /// <inheritdoc/>
     public bool HasRaw(string path) => m_Values.ContainsKey(path);
@@ -56,10 +55,10 @@ public class MemoryConfigurationValueSource(IDictionary<string, object> source, 
     }
 
     /// <inheritdoc/>
-    public void Save() => CopyValues(m_Source, m_Values);
+    public void Save() { }
 
     /// <inheritdoc/>
-    public void Load() => CopyValues(m_Values, m_Source);
+    public void Load() { }
 
     /// <inheritdoc/>
     public void RemoveExcept(params IEnumerable<string> paths)
@@ -74,24 +73,10 @@ public class MemoryConfigurationValueSource(IDictionary<string, object> source, 
     }
 
     /// <inheritdoc/>
-    public Task SaveAsync()
-    {
-        Save();
-        return Task.CompletedTask;
-    }
+    public Task SaveAsync() => Task.CompletedTask;
 
     /// <inheritdoc/>
-    public Task LoadAsync()
-    {
-        Load();
-        return Task.CompletedTask;
-    }
-
-    private static void CopyValues(IDictionary<string, object> values, IDictionary<string, object> source)
-    {
-        values.Clear();
-        foreach(var kvp in source) values[kvp.Key] = kvp.Value;
-    }
+    public Task LoadAsync() => Task.CompletedTask;
 
     private IEnumerable<string> GetChildrenPaths(string path) => string.IsNullOrEmpty(path) ? m_Values.Keys : m_Values.Keys.Where(p => p.StartsWith(path));
 }

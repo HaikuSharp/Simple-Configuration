@@ -67,11 +67,10 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
     {
         var currentToken = NotNullSource;
 
-        if(currentToken is null) return null;
         if(string.IsNullOrWhiteSpace(path)) return currentToken;
-        if(path.IndexOf(settings.Separator) is -1) return currentToken[path];
+        if(path.IndexOf(settings.Separator) is -1) return currentToken[path] ??= new JObject();
 
-        foreach(string pathPart in InternalGetPathEnumerator(path)) currentToken = currentToken[pathPart] ?? (currentToken[pathPart] = new JObject());
+        foreach(string pathPart in InternalGetPathEnumerator(path)) currentToken = currentToken[pathPart] ??= new JObject();
 
         return currentToken;
     }
@@ -84,7 +83,6 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
     {
         var currentToken = NotNullSource;
 
-        if(currentToken is null) return null;
         if(string.IsNullOrWhiteSpace(path)) return currentToken;
         if(path.IndexOf(settings.Separator) is -1) return currentToken[path];
 
