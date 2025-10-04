@@ -98,4 +98,9 @@ public static class ConfigurationExtensions
     /// <param name="configuration">The configuration to load.</param>
     /// <param name="source">The value source to load from.</param>
     public static void Load(this IConfiguration configuration, IConfigurationValueSource source) => configuration.Load(null, source);
+
+    /// <summary>
+    /// Removes all configuration options.
+    /// </summary>
+    public static void Clear(this IConfiguration configuration) => configuration.RemoveOption(null);
 }
