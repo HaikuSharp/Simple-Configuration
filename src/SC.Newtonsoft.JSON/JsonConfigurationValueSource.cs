@@ -13,8 +13,9 @@ namespace SC.Newtonsoft.JSON;
 public class JsonConfigurationValueSource(JToken source, IConfigurationSettings settings) : IConfigurationValueSource
 {
     private readonly Dictionary<string, JToken> m_TokensCache = [];
+    private JToken m_Source;
 
-    internal JToken NotNullSource => source ??= new JObject();
+    internal JToken NotNullSource => m_Source ??= new JObject();
 
     /// <inheritdoc/>
     public bool HasRaw(string path) => InternalGetRawJsonValue(path) is not null;
@@ -56,7 +57,8 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
     /// <inheritdoc/>
     public void RemoveRaw(string path)
     {
-        InternalGetRawJsonValueWithoutCacheUpdate(path)?.Remove();
+        if(string.IsNullOrEmpty(path)) m_Source?.Replace(new JObject());
+        else InternalGetRawJsonValueWithoutCacheUpdate(path)?.Remove();
         m_TokensCache.Clear();
     }
 
@@ -64,7 +66,7 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
     {
         var currentToken = NotNullSource;
 
-        if(string.IsNullOrWhiteSpace(path)) return currentToken;
+        if(string.IsNullOrEmpty(path)) return currentToken;
         if(path.IndexOf(settings.Separator) is -1) return GetNotNullTokenFromToken(currentToken, path);
 
         foreach(string pathPart in InternalGetPathEnumerator(path)) currentToken = GetNotNullTokenFromToken(currentToken, pathPart);
@@ -80,8 +82,8 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
     {
         if(string.IsNullOrEmpty(path))
         {
-            token = null;
-            return false;
+            token = NotNullSource;
+            return true;
         }
 
         return m_TokensCache.TryGetValue(path, out token);
@@ -91,6 +93,7 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
     {
         var currentToken = NotNullSource;
 
+        if(string.IsNullOrEmpty(path)) return currentToken;
         if(path.IndexOf(settings.Separator) is -1) return currentToken[path];
 
         foreach(string pathPart in InternalGetPathEnumerator(path))
