@@ -72,15 +72,25 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
         return currentToken;
     }
 
-    private JToken InternalGetRawJsonValue(string path) => m_TokensCache.TryGetValue(path, out var token) ? token : (m_TokensCache[path] = InternalFindRawJsonValue(path));
+    private JToken InternalGetRawJsonValue(string path) => TryGetCachedToken(path, out var token) ? token : (m_TokensCache[path] = InternalFindRawJsonValue(path));
 
-    private JToken InternalGetRawJsonValueWithoutCacheUpdate(string path) => m_TokensCache.TryGetValue(path, out var token) ? token : InternalFindRawJsonValue(path);
+    private JToken InternalGetRawJsonValueWithoutCacheUpdate(string path) => TryGetCachedToken(path, out var token) ? token : InternalFindRawJsonValue(path);
+
+    private bool TryGetCachedToken(string path, out JToken token)
+    {
+        if(string.IsNullOrEmpty(path))
+        {
+            token = null;
+            return false;
+        }
+
+        return m_TokensCache.TryGetValue(path, out token);
+    }
 
     private JToken InternalFindRawJsonValue(string path)
     {
         var currentToken = NotNullSource;
 
-        if(string.IsNullOrWhiteSpace(path)) return currentToken;
         if(path.IndexOf(settings.Separator) is -1) return currentToken[path];
 
         foreach(string pathPart in InternalGetPathEnumerator(path))
