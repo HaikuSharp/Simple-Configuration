@@ -46,19 +46,27 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
     }
 
     /// <inheritdoc/>
-    public void SetRaw<T>(string path, T rawValue)
-    {
-        var token = InternalGetOrCreateRawJsonValue(path);
-        token.Replace(JToken.FromObject(rawValue));
-        m_TokensCache[path] = token;
-        m_TokensCache.Clear();
-    }
+    public void SetRaw<T>(string path, T rawValue) => ReplaceToken(path, JToken.FromObject(rawValue));
 
     /// <inheritdoc/>
     public void RemoveRaw(string path)
     {
-        if(string.IsNullOrEmpty(path)) m_Source?.Replace(new JObject());
+        if(string.IsNullOrEmpty(path)) m_Source = new JObject();
         else InternalGetRawJsonValueWithoutCacheUpdate(path)?.Remove();
+        m_TokensCache.Clear();
+    }
+
+    private void ReplaceToken(string path, JToken rtoken)
+    {
+        if(string.IsNullOrEmpty(path))
+        {
+            m_Source = rtoken;
+            return;
+        }
+
+        var token = InternalGetOrCreateRawJsonValue(path);
+        token.Replace(rtoken);
+        m_TokensCache[path] = token;
         m_TokensCache.Clear();
     }
 
