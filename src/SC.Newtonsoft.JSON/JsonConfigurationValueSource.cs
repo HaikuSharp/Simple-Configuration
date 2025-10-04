@@ -13,7 +13,7 @@ namespace SC.Newtonsoft.JSON;
 public class JsonConfigurationValueSource(JToken source, IConfigurationSettings settings) : IConfigurationValueSource
 {
     private readonly Dictionary<string, JToken> m_TokensCache = [];
-    private JToken m_Source;
+    private JToken m_Source = source;
 
     internal JToken NotNullSource => m_Source ??= new JObject();
 
