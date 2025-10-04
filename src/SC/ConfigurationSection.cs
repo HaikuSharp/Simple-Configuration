@@ -39,7 +39,4 @@ public sealed class ConfigurationSection(IConfiguration configuration, string pa
 
     /// <inheritdoc/>
     public void Load(string path, IConfigurationValueSource source) => configuration.Load(GetAbsolutePath(path), source);
-
-    /// <inheritdoc/>
-    public void Sync(string path, IConfigurationValueSource source) => configuration.Sync(GetAbsolutePath(path), source);
 }

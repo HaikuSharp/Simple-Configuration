@@ -73,11 +73,4 @@ public interface IConfiguration
     /// <param name="path">The configuration section path.</param>
     /// <param name="source">The value source.</param>
     void Load(string path, IConfigurationValueSource source);
-
-    /// <summary>
-    /// Synchronizes the configuration with the specified source. Removing unnecessary values from source.
-    /// </summary>
-    /// <param name="path">The configuration path to synchronize.</param>
-    /// <param name="source">The source containing the desired configuration values.</param>
-    void Sync(string path, IConfigurationValueSource source);
 }

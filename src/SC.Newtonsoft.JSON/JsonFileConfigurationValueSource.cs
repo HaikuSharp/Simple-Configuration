@@ -37,9 +37,6 @@ public class JsonFileConfigurationValueSource(string filePath, IConfigurationSet
     public void RemoveRaw(string path) => m_Source.RemoveRaw(path);
 
     /// <inheritdoc/>
-    public void Clear() => m_Source.Clear();
-
-    /// <inheritdoc/>
     public void Load()
     {
         if(!File.Exists(filePath)) throw new FileNotFoundException(filePath);
@@ -102,7 +99,4 @@ public class JsonFileConfigurationValueSource(string filePath, IConfigurationSet
 
         await source.WriteToAsync(jsonWriter).ConfigureAwait(false);
     }
-
-    /// <inheritdoc/>
-    public void RemoveExcept(params IEnumerable<string> paths) => m_Source.RemoveExcept(paths);
 }

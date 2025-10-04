@@ -46,7 +46,7 @@ public sealed class Configuration(IConfigurationSettings settings) : IConfigurat
     /// <inheritdoc/>
     public void RemoveOption(string path)
     {
-        foreach(var optionPath in GetOptionsByPath(path).Select(e => e.Key))
+        foreach(var optionPath in GetOptionsByPath(path).Select(e => e.Key).ToArray())
         {
             if(!m_Options.Remove(optionPath)) continue;
             m_Validator.Remove(optionPath);
@@ -72,9 +72,6 @@ public sealed class Configuration(IConfigurationSettings settings) : IConfigurat
 
         OnLoaded?.Invoke(path);
     }
-
-    /// <inheritdoc/>
-    public void Sync(string path, IConfigurationValueSource source) => source.RemoveExcept(GetOptionsByPath(path).Select(e => e.Key));
 
     private TOption InternalAddOptionAndLoad<TOption>(string path, IConfigurationValueSource source) where TOption : class, IConfigurationOption, new()
     {

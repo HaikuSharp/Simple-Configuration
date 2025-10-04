@@ -41,17 +41,23 @@ public class MemoryConfigurationValueSource(IDictionary<string, object> source, 
     public void SetRaw<T>(string path, T rawValue) => m_Values[path] = rawValue;
 
     /// <inheritdoc/>
-    public void RemoveRaw(string path) => _ = m_Values.Remove(path);
+    public void RemoveRaw(string path)
+    {
+        if(string.IsNullOrEmpty(path))
+        {
+            m_Values.Clear();
+            return;
+        }
 
-    /// <inheritdoc/>
-    public void Clear() => m_Values.Clear();
+        foreach(var childPath in GetChildrenPaths(path).ToArray()) m_Values.Remove(childPath);
+    }
 
     private static T InternalConvertValue<T>(object sourceValue) => (T)InternalConvertValue(sourceValue, typeof(T));
 
     private static object InternalConvertValue(object sourceValue, Type type)
     {
         var converter = TypeDescriptor.GetConverter(sourceValue.GetType());
-        return converter.CanConvertTo(type) ? converter.ConvertTo(sourceValue, type) : throw new InvalidCastException();
+        return converter.CanConvertTo(type) ? converter.ConvertTo(sourceValue, type) : throw new InvalidCastException($"Failed to convert object of type {sourceValue.GetType().FullName} to object of type {type.FullName}");
     }
 
     /// <inheritdoc/>
@@ -59,18 +65,6 @@ public class MemoryConfigurationValueSource(IDictionary<string, object> source, 
 
     /// <inheritdoc/>
     public void Load() { }
-
-    /// <inheritdoc/>
-    public void RemoveExcept(params IEnumerable<string> paths)
-    {
-        var values = m_Values;
-
-        foreach(var valuePath in values.Keys)
-        {
-            if(paths.Contains(valuePath)) continue;
-            _ = values.Remove(valuePath);
-        }
-    }
 
     /// <inheritdoc/>
     public Task SaveAsync() => Task.CompletedTask;

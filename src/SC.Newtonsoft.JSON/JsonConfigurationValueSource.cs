@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace SC.Newtonsoft.JSON;
 
+/// <summary>
+/// Represents a configuration values source that loads from and saves to Json token.
+/// </summary>
 public class JsonConfigurationValueSource(JToken source, IConfigurationSettings settings) : IConfigurationValueSource
 {
     private readonly Dictionary<string, JToken> m_TokensCache = [];
@@ -47,19 +50,13 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
         var token = InternalGetOrCreateRawJsonValue(path);
         token.Replace(JToken.FromObject(rawValue));
         m_TokensCache[path] = token;
+        m_TokensCache.Clear();
     }
 
     /// <inheritdoc/>
     public void RemoveRaw(string path)
     {
         InternalGetRawJsonValueWithoutCacheUpdate(path)?.Remove();
-        _ = m_TokensCache.Remove(path);
-    }
-
-    /// <inheritdoc/>
-    public void Clear()
-    {
-        source = null;
         m_TokensCache.Clear();
     }
 
@@ -68,9 +65,9 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
         var currentToken = NotNullSource;
 
         if(string.IsNullOrWhiteSpace(path)) return currentToken;
-        if(path.IndexOf(settings.Separator) is -1) return currentToken[path] ??= new JObject();
+        if(path.IndexOf(settings.Separator) is -1) return GetNotNullTokenFromToken(currentToken, path);
 
-        foreach(string pathPart in InternalGetPathEnumerator(path)) currentToken = currentToken[pathPart] ??= new JObject();
+        foreach(string pathPart in InternalGetPathEnumerator(path)) currentToken = GetNotNullTokenFromToken(currentToken, pathPart);
 
         return currentToken;
     }
@@ -97,6 +94,8 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
 
     private ConfigurationPathEnumerator InternalGetPathEnumerator(string path) => path.AsPathEnumerator(settings.Separator);
 
+    private static JToken GetNotNullTokenFromToken(JToken source, string path) => source[path] ??= new JObject();
+
     /// <inheritdoc/>
     public void Load() { }
 
@@ -108,45 +107,4 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
 
     /// <inheritdoc/>
     public Task SaveAsync() => Task.CompletedTask;
-
-    /// <inheritdoc/>
-    public void RemoveExcept(params IEnumerable<string> paths)
-    {
-        if(!paths.Any())
-        {
-            Clear();
-            return;
-        }
-
-        RemoveExcept(NotNullSource, paths);
-    }
-
-    private void RemoveExcept(JToken token, IEnumerable<string> paths) => RemoveExcept(token, paths, string.Empty);
-
-    private void RemoveExcept(JToken token, IEnumerable<string> paths, string currentPath)
-    {
-        switch(token.Type)
-        {
-            case JTokenType.Object:
-            var obj = token as JObject;
-            var properties = obj.Properties();
-
-            foreach(var property in properties)
-            {
-                if(paths.Any(path => IsInPath(path, settings.CombinePaths(currentPath, property.Name)))) RemoveExcept(property.Value, paths, settings.CombinePaths(currentPath, property.Name));
-                else obj.Remove(property.Name);
-            }
-
-            break;
-
-            case JTokenType.Array:
-            var array = token as JArray;
-
-            for(int i = 0; i < array.Count; i++) RemoveExcept(array[i], paths, settings.CombinePaths(currentPath, i.ToString()));
-
-            break;
-        }
-    }
-
-    private bool IsInPath(string path, string targetPath) => path == targetPath || targetPath.StartsWith(settings.Separator);
 }
