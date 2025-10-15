@@ -64,7 +64,7 @@ public class JsonFileConfigurationValueSource(string filePath, IConfigurationSet
             Formatting = Formatting.Indented
         };
 
-        token.WriteTo(jsonWriter);
+        token.WriteTo(jsonWriter, []);
     }
 
     /// <inheritdoc/>
@@ -97,6 +97,6 @@ public class JsonFileConfigurationValueSource(string filePath, IConfigurationSet
             Formatting = Formatting.Indented
         };
 
-        await source.WriteToAsync(jsonWriter).ConfigureAwait(false);
+        await source.WriteToAsync(jsonWriter, []).ConfigureAwait(false);
     }
 }
