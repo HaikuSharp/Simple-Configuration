@@ -11,8 +11,6 @@ namespace SC.Newtonsoft.JSON;
 /// </summary>
 public class JsonFileConfigurationValueSource(string filePath, IConfigurationSettings settings) : JsonConfigurationValueSource(new JObject(), settings)
 {
-    private readonly IConfigurationSettings m_Settings = settings;
-
     /// <inheritdoc/>
     public string FilePath => filePath;
 
