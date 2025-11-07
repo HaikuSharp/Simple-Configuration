@@ -4,6 +4,32 @@ using System.Threading.Tasks;
 namespace SC.Abstraction;
 
 /// <summary>
+/// Represents a source for configuration values that supports save and load.
+/// </summary>
+public interface ILoadableConfigurationValueSource : IConfigurationValueSource
+{
+    /// <summary>
+    /// Saves all changes to the value source.
+    /// </summary>
+    void Save();
+
+    /// <summary>
+    /// Loads all values from the value source.
+    /// </summary>
+    void Load();
+
+    /// <summary>
+    /// Asynchronously saves all changes to the value source.
+    /// </summary>
+    Task SaveAsync();
+
+    /// <summary>
+    /// Asynchronously loads all values from the value source.
+    /// </summary>
+    Task LoadAsync();
+}
+
+/// <summary>
 /// Represents a source for configuration values that supports reading and writing.
 /// </summary>
 public interface IConfigurationValueSource
@@ -61,24 +87,4 @@ public interface IConfigurationValueSource
     /// </summary>
     /// <param name="path">The path of the value to remove.</param>
     void RemoveRaw(string path);
-
-    /// <summary>
-    /// Saves all changes to the value source.
-    /// </summary>
-    void Save();
-
-    /// <summary>
-    /// Loads all values from the value source.
-    /// </summary>
-    void Load();
-
-    /// <summary>
-    /// Asynchronously saves all changes to the value source.
-    /// </summary>
-    Task SaveAsync();
-
-    /// <summary>
-    /// Asynchronously loads all values from the value source.
-    /// </summary>
-    Task LoadAsync();
 }

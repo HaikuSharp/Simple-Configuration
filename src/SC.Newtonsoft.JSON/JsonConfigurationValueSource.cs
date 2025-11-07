@@ -14,7 +14,10 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
 {
     private readonly Dictionary<string, JToken> m_TokensCache = [];
 
-    protected JToken NotNullSource
+    /// <summary>
+    /// Gets the root values source token.
+    /// </summary>
+    protected JToken Source
     { 
         get => field ??= new JObject(); 
         set; 
@@ -56,7 +59,7 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
     {
         m_TokensCache.Clear();
 
-        if(string.IsNullOrEmpty(path)) NotNullSource = new JObject();
+        if(string.IsNullOrEmpty(path)) Source = new JObject();
         else GetRawJsonValueWithoutCacheUpdate(path).Remove();
     }
 
@@ -66,13 +69,11 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
 
         if(string.IsNullOrEmpty(path))
         {
-            NotNullSource = rtoken;
+            Source = rtoken;
             return;
         }
 
         var token = GetOrCreateRawJsonValue(path);
-
-        if(token is null) return;
 
         token.Replace(rtoken);
         m_TokensCache[path] = token;
@@ -80,7 +81,7 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
 
     private JToken GetOrCreateRawJsonValue(string path)
     {
-        var currentToken = NotNullSource;
+        var currentToken = Source;
 
         if(string.IsNullOrEmpty(path)) return currentToken;
         if(path.IndexOf(settings.Separator) is -1) return GetNotNullTokenFromToken(currentToken, path);
@@ -98,7 +99,7 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
     {
         if(string.IsNullOrEmpty(path))
         {
-            token = NotNullSource;
+            token = Source;
             return true;
         }
 
@@ -107,7 +108,7 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
 
     private JToken FindRawJsonValue(string path)
     {
-        var currentToken = NotNullSource;
+        var currentToken = Source;
 
         if(string.IsNullOrEmpty(path)) return currentToken;
         if(path.IndexOf(settings.Separator) is -1) return currentToken[path];
@@ -124,16 +125,4 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
     private ConfigurationPathEnumerator InternalGetPathEnumerator(string path) => path.AsPathEnumerator(settings.Separator);
 
     private static JToken GetNotNullTokenFromToken(JToken source, string path) => source[path] ??= new JObject();
-
-    /// <inheritdoc/>
-    public virtual void Load() { }
-
-    /// <inheritdoc/>
-    public virtual void Save() { }
-
-    /// <inheritdoc/>
-    public virtual Task LoadAsync() => Task.CompletedTask;
-
-    /// <inheritdoc/>
-    public virtual Task SaveAsync() => Task.CompletedTask;
 }

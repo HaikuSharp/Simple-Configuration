@@ -9,30 +9,31 @@ namespace SC.Newtonsoft.JSON;
 /// <summary>
 /// Represents a configuration values source that loads from and saves to Json file.
 /// </summary>
-public class JsonFileConfigurationValueSource(string filePath, IConfigurationSettings settings) : JsonConfigurationValueSource(new JObject(), settings)
+public class JsonFileConfigurationValueSource(string filePath, IConfigurationSettings settings) : JsonConfigurationValueSource(new JObject(), settings), ILoadableConfigurationValueSource
 {
     /// <inheritdoc/>
     public string FilePath => filePath;
 
     /// <inheritdoc/>
-    public override void Load()
+    public void Load()
     {
         if(!File.Exists(filePath)) throw new FileNotFoundException(filePath);
 
         using StreamReader streamReader = new(filePath);
         using JsonTextReader jsonReader = new(streamReader);
 
-        NotNullSource = JToken.Load(jsonReader);
+        Source = JToken.Load(jsonReader);
     }
 
     /// <inheritdoc/>
-    public override void Save()
+    public void Save()
     {
-        var token = NotNullSource;
+        var token = Source;
 
         string directory = Path.GetDirectoryName(filePath);
 
-        if(!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) _ = Directory.CreateDirectory(directory);
+        if(string.IsNullOrEmpty(directory)) return;
+        if(!Directory.Exists(directory)) _ = Directory.CreateDirectory(directory);
 
         using StreamWriter streamWriter = new(filePath);
         using JsonTextWriter jsonWriter = new(streamWriter)
@@ -44,7 +45,7 @@ public class JsonFileConfigurationValueSource(string filePath, IConfigurationSet
     }
 
     /// <inheritdoc/>
-    public override async Task LoadAsync()
+    public async Task LoadAsync()
     {
         if(!File.Exists(filePath)) throw new FileNotFoundException(filePath);
 
@@ -53,17 +54,18 @@ public class JsonFileConfigurationValueSource(string filePath, IConfigurationSet
         using StreamReader streamReader = new(fileStream);
         using JsonTextReader jsonReader = new(streamReader);
 
-        NotNullSource = await JToken.LoadAsync(jsonReader).ConfigureAwait(false);
+        Source = await JToken.LoadAsync(jsonReader).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
-    public override async Task SaveAsync()
+    public async Task SaveAsync()
     {
-        var source = NotNullSource;
+        var source = Source;
 
         string directory = Path.GetDirectoryName(filePath);
 
-        if(!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) _ = Directory.CreateDirectory(directory);
+        if(string.IsNullOrEmpty(directory)) return;
+        if(!Directory.Exists(directory)) _ = Directory.CreateDirectory(directory);
 
         using FileStream fileStream = new(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true);
 

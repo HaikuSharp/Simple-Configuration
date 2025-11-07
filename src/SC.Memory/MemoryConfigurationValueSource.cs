@@ -60,17 +60,5 @@ public class MemoryConfigurationValueSource(IDictionary<string, object> source, 
         return converter.CanConvertTo(type) ? converter.ConvertTo(sourceValue, type) : throw new InvalidCastException($"Failed to convert object of type {sourceValue.GetType().FullName} to object of type {type.FullName}");
     }
 
-    /// <inheritdoc/>
-    public void Save() { }
-
-    /// <inheritdoc/>
-    public void Load() { }
-
-    /// <inheritdoc/>
-    public Task SaveAsync() => Task.CompletedTask;
-
-    /// <inheritdoc/>
-    public Task LoadAsync() => Task.CompletedTask;
-
     private IEnumerable<string> GetChildrenPaths(string path) => string.IsNullOrEmpty(path) ? m_Values.Keys : m_Values.Keys.Where(p => p.StartsWith(path));
 }
