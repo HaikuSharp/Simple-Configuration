@@ -13,20 +13,23 @@ namespace SC.Newtonsoft.JSON;
 public class JsonConfigurationValueSource(JToken source, IConfigurationSettings settings) : IConfigurationValueSource
 {
     private readonly Dictionary<string, JToken> m_TokensCache = [];
-    private JToken m_Source = source;
 
-    internal JToken NotNullSource => m_Source ??= new JObject();
+    protected JToken NotNullSource
+    { 
+        get => field ??= new JObject(); 
+        set; 
+    } = source;
 
     /// <inheritdoc/>
-    public bool HasRaw(string path) => InternalGetRawJsonValue(path) is not null;
+    public bool HasRaw(string path) => GetRawJsonValue(path) is not null;
 
     /// <inheritdoc/>
-    public IEnumerable<string> GetRawsNames(string path) => InternalGetRawJsonValue(path)?.Children<JProperty>().Select(p => p.Name) ?? [];
+    public IEnumerable<string> GetRawsNames(string path) => GetRawJsonValue(path)?.Children<JProperty>().Select(p => p.Name) ?? [];
 
     /// <inheritdoc/>
     public bool TryGetRaw<T>(string path, out T rawValue)
     {
-        var token = InternalGetRawJsonValue(path);
+        var token = GetRawJsonValue(path);
 
         if(token is not null)
         {
@@ -41,7 +44,7 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
     /// <inheritdoc/>
     public T GetRaw<T>(string path)
     {
-        var token = InternalGetRawJsonValue(path);
+        var token = GetRawJsonValue(path);
         return token is not null ? token.ToObject<T>() : default;
     }
 
@@ -53,8 +56,8 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
     {
         m_TokensCache.Clear();
 
-        if(string.IsNullOrEmpty(path)) m_Source = new JObject();
-        else InternalGetRawJsonValueWithoutCacheUpdate(path).Remove();
+        if(string.IsNullOrEmpty(path)) NotNullSource = new JObject();
+        else GetRawJsonValueWithoutCacheUpdate(path).Remove();
     }
 
     private void ReplaceToken(string path, JToken rtoken)
@@ -63,11 +66,11 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
 
         if(string.IsNullOrEmpty(path))
         {
-            m_Source = rtoken;
+            NotNullSource = rtoken;
             return;
         }
 
-        var token = InternalGetOrCreateRawJsonValue(path);
+        var token = GetOrCreateRawJsonValue(path);
 
         if(token is null) return;
 
@@ -75,7 +78,7 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
         m_TokensCache[path] = token;
     }
 
-    private JToken InternalGetOrCreateRawJsonValue(string path)
+    private JToken GetOrCreateRawJsonValue(string path)
     {
         var currentToken = NotNullSource;
 
@@ -87,9 +90,9 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
         return currentToken;
     }
 
-    private JToken InternalGetRawJsonValue(string path) => TryGetCachedToken(path, out var token) ? token : (m_TokensCache[path] = InternalFindRawJsonValue(path));
+    private JToken GetRawJsonValue(string path) => TryGetCachedToken(path, out var token) ? token : (m_TokensCache[path] = FindRawJsonValue(path));
 
-    private JToken InternalGetRawJsonValueWithoutCacheUpdate(string path) => TryGetCachedToken(path, out var token) ? token : InternalFindRawJsonValue(path);
+    private JToken GetRawJsonValueWithoutCacheUpdate(string path) => TryGetCachedToken(path, out var token) ? token : FindRawJsonValue(path);
 
     private bool TryGetCachedToken(string path, out JToken token)
     {
@@ -102,7 +105,7 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
         return m_TokensCache.TryGetValue(path, out token);
     }
 
-    private JToken InternalFindRawJsonValue(string path)
+    private JToken FindRawJsonValue(string path)
     {
         var currentToken = NotNullSource;
 
@@ -123,14 +126,14 @@ public class JsonConfigurationValueSource(JToken source, IConfigurationSettings 
     private static JToken GetNotNullTokenFromToken(JToken source, string path) => source[path] ??= new JObject();
 
     /// <inheritdoc/>
-    public void Load() { }
+    public virtual void Load() { }
 
     /// <inheritdoc/>
-    public void Save() { }
+    public virtual void Save() { }
 
     /// <inheritdoc/>
-    public Task LoadAsync() => Task.CompletedTask;
+    public virtual Task LoadAsync() => Task.CompletedTask;
 
     /// <inheritdoc/>
-    public Task SaveAsync() => Task.CompletedTask;
+    public virtual Task SaveAsync() => Task.CompletedTask;
 }
